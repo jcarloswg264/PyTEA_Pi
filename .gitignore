@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Entornos virtuales
+env/
+venv/
+*.env
+
+# Archivos de configuración del sistema
+*.DS_Store
+*.swp
+*.swo
+*.~lock.*
+
+# Archivos generados por el sistema operativo
+Thumbs.db
+desktop.ini
+
+# Archivos de logs
+*.log
+
+# Archivos de instalación y paquetes
+*.egg
+*.egg-info/
+dist/
+build/
+*.tar.gz
+*.zip
+*.whl
+
+# Configuraciones de IDEs
+.idea/
+.vscode/
+*.code-workspace
+
+# Archivos relacionados con Kivy
+.kivy/
