@@ -95,7 +95,31 @@ Si deseas utilizar los pictogramas para fines comerciales o necesitas modificar 
 ---
 
 ## 📜 Licencia
-Este proyecto está licenciado bajo la **[MIT License](LICENSE)**. Sin embargo, esta licencia no aplica a los recursos gráficos (pictogramas) de **ARASAAC**, que están protegidos por sus propios términos de uso.
+Este proyecto está licenciado bajo la **[MIT License (Modificada para prohibir uso comercial)](LICENSE)**.
+
+### Condiciones principales de la licencia MIT personalizada:
+1. **Uso no comercial**: El software no puede ser utilizado con fines comerciales sin autorización explícita del autor.
+2. **Atribución**: Debe reconocerse a **Jose Carlos Wittmann** como el autor del proyecto en cualquier uso, copia o distribución.
+3. **Permiso para uso comercial**: Para usar este software en proyectos comerciales, se debe obtener autorización previa.
+
+El texto completo de la licencia está disponible en el archivo [LICENSE](LICENSE).
+
+---
+
+## ⚠️ Consideraciones legales sobre los pictogramas de ARASAAC
+Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
+
+### Condiciones de uso de los pictogramas:
+- **Uso no comercial**: Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales. **No se permite su uso con fines comerciales** sin autorización expresa de ARASAAC.
+- **Reconocimiento de autoría**: ARASAAC y el Gobierno de Aragón deben ser reconocidos como los autores de los pictogramas en cualquier uso o distribución.
+- **No alteración**: Los pictogramas no pueden ser modificados sin autorización expresa.
+
+Puedes consultar las condiciones completas en la página oficial de ARASAAC: [https://arasaac.org/terms-of-use](https://arasaac.org/terms-of-use).
+
+---
+
+Para consultas sobre el uso del software o los pictogramas, puedes contactarme directamente.
+
 
 ---
 
