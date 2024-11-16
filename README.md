@@ -1,12 +1,11 @@
-
 # PyTEA Pi
-**PyTEA Pi** es una aplicación interactiva diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA). La aplicación permite el uso de pictogramas acompañados de locuciones, organizados por categorías, y está optimizada para ejecutarse en dispositivos con Raspberry Pi OS.
+**PyTEA Pi** es una aplicación interactiva diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA). La aplicación utiliza pictogramas acompañados de locuciones, organizados por categorías, para crear una experiencia intuitiva y accesible. Está optimizada para ejecutarse en dispositivos con Raspberry Pi OS.
 
 ---
 
 ## 🚀 Características
 - Interfaz gráfica intuitiva y accesible.
-- Pictogramas organizados por categorías (animales, objetos, acciones, etc.).
+- Pictogramas organizados por categorías como animales, objetos, acciones, entre otras.
 - Locuciones asociadas para cada pictograma.
 - Compatible con dispositivos Raspberry Pi.
 - Código modular y fácilmente extensible.
@@ -16,25 +15,25 @@
 ## 📂 Estructura del proyecto
 ```plaintext
 PyTEA_Pi/
-├── main.py                  # Archivo principal para ejecutar la aplicación.
-├── pictograms/              # Carpeta con los pictogramas organizados por categorías.
-├── audio/                   # Carpeta con las locuciones asociadas a los pictogramas.
-├── src/                     # Código fuente de la aplicación.
-├── data/                    # Configuración y relación pictogramas-locuciones.
-├── assets/                  # Iconos, fuentes y otros recursos estáticos.
-├── scripts/                 # Scripts de instalación y despliegue.
-├── tests/                   # Tests automatizados.
-├── requirements.txt         # Lista de dependencias del proyecto.
-└── README.md                # Documentación del proyecto.
+├── assets/               # Recursos estáticos como el logo.
+├── audio/                # Archivos de audio organizados por categorías.
+├── data/                 # Configuración y mapeo de datos.
+├── pictograms/           # Pictogramas organizados por categorías.
+├── scripts/              # Scripts para despliegue y automatización.
+├── src/                  # Código fuente principal de la aplicación.
+├── tests/                # Tests automatizados.
+├── README.md             # Documentación del proyecto.
+├── requirements.txt      # Lista de dependencias del proyecto.
+└── main.py               # Archivo principal para ejecutar la aplicación.
 ```
 
 ---
 
 ## 🛠️ Instalación
 ### Requisitos previos
-- Python 3.7 o superior.
-- Raspberry Pi OS o cualquier sistema basado en Linux.
-- Dependencias listadas en `requirements.txt`.
+- **Sistema operativo:** Raspberry Pi OS o cualquier distribución basada en Linux.
+- **Python:** Versión 3.7 o superior.
+- Dependencias especificadas en `requirements.txt`.
 
 ### Instrucciones
 1. Clona el repositorio:
@@ -67,14 +66,21 @@ PyTEA_Pi/
 
 ## ⚖️ Consideraciones legales
 ### Uso de pictogramas de ARASAAC
-Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)** bajo su licencia de uso. **ARASAAC** es una fuente gratuita de pictogramas y recursos gráficos para personas con necesidades comunicativas específicas. 
+Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
 
-Los pictogramas son propiedad de **Gobierno de Aragón (España)** y tienen restricciones en cuanto a su uso comercial. Si planeas distribuir o comercializar este proyecto, consulta previamente los términos de uso detallados en su sitio web: [Licencia de ARASAAC](https://arasaac.org/licencia).
+**Condiciones de uso:**
+- **Uso no comercial:** Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales, sin ningún propósito comercial.
+- **Reconocimiento de autoría:** ARASAAC y el Gobierno de Aragón son reconocidos como los autores y propietarios de los pictogramas utilizados.
+- **No alteración:** Los pictogramas no han sido modificados, salvo autorización expresa.
+
+Para más información sobre las condiciones de uso, visita la página oficial de ARASAAC: [Condiciones de uso de ARASAAC](https://arasaac.org/terms-of-use).
+
+Si deseas utilizar los pictogramas para fines comerciales o necesitas modificar los recursos, es obligatorio obtener autorización expresa de ARASAAC y del Gobierno de Aragón.
 
 ---
 
 ## 🧩 Contribución
-¡Tu ayuda es bienvenida! Si deseas contribuir, sigue estos pasos:
+¡Tu ayuda es bienvenida! Si deseas contribuir:
 1. Haz un fork del repositorio.
 2. Crea una rama para tu funcionalidad o corrección:
    ```bash
