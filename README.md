@@ -1,14 +1,14 @@
 # PyTEA Pi
-**PyTEA Pi** es una aplicación interactiva diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA). La aplicación utiliza pictogramas acompañados de locuciones, organizados por categorías, para crear una experiencia intuitiva y accesible. Está optimizada para ejecutarse en dispositivos con Raspberry Pi OS.
+**PyTEA Pi** es una aplicación diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA) o Trastorno Específico del Lenguaje (TEL). La aplicación utiliza pictogramas organizados por categorías, acompañados de locuciones, para permitir la formación de frases de manera intuitiva y accesible.
 
 ---
 
 ## 🚀 Características
-- Interfaz gráfica intuitiva y accesible.
-- Pictogramas organizados por categorías como animales, objetos, acciones, entre otras.
-- Locuciones asociadas para cada pictograma.
-- Compatible con dispositivos Raspberry Pi.
-- Código modular y fácilmente extensible.
+- **Interfaz gráfica adaptada**: Navegación intuitiva basada en pictogramas categorizados.
+- **Feedback visual y auditivo**: Los pictogramas seleccionados generan frases visibles y locuciones claras.
+- **Menú estructurado**: Hasta 20 categorías de pictogramas organizadas por colores y temáticas.
+- **Independencia de hardware**: Compatible con cualquier sistema operativo basado en Linux.
+- **Código modular**: Diseño extensible para futuras funcionalidades y mejoras.
 
 ---
 
@@ -106,8 +106,14 @@ El texto completo de la licencia está disponible en el archivo [LICENSE](LICENS
 
 ---
 
+Para consultas sobre el uso del software, puedes contactarme directamente.
+
+---
+
 ## ⚠️ Consideraciones legales sobre los pictogramas de ARASAAC
 Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
+
+![Logo ARASAAC](assets/logo_arasaac.png)
 
 ### Condiciones de uso de los pictogramas:
 - **Uso no comercial**: Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales. **No se permite su uso con fines comerciales** sin autorización expresa de ARASAAC.
@@ -115,11 +121,6 @@ Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.
 - **No alteración**: Los pictogramas no pueden ser modificados sin autorización expresa.
 
 Puedes consultar las condiciones completas en la página oficial de ARASAAC: [https://arasaac.org/terms-of-use](https://arasaac.org/terms-of-use).
-
----
-
-Para consultas sobre el uso del software o los pictogramas, puedes contactarme directamente.
-
 
 ---
 
