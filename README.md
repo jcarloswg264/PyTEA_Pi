@@ -113,7 +113,7 @@ Para consultas sobre el uso del software, puedes contactarme directamente.
 ## ⚠️ Consideraciones legales sobre los pictogramas de ARASAAC
 Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
 
-![Logo ARASAAC](assets/logo_arasaac.png)
+![Logo ARASAAC](assets/logo_ARASAAC.png)
 
 ### Condiciones de uso de los pictogramas:
 - **Uso no comercial**: Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales. **No se permite su uso con fines comerciales** sin autorización expresa de ARASAAC.
