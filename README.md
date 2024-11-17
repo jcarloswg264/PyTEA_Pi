@@ -1,3 +1,7 @@
+<div align="center">
+    <img src="assets/logo_banner.png" alt="PyTEA Pi Banner" width="600">
+</div>
+
 # PyTEA Pi
 **PyTEA Pi** es una aplicación diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA) o Trastorno Específico del Lenguaje (TEL). La aplicación utiliza pictogramas organizados por categorías, acompañados de locuciones, para permitir la formación de frases de manera intuitiva y accesible.
 
@@ -31,7 +35,7 @@ PyTEA_Pi/
 
 ## 🛠️ Instalación
 ### Requisitos previos
-- **Sistema operativo:** Raspberry Pi OS o cualquier distribución basada en Linux.
+- **Sistema operativo:** Cualquier distribución basada en Linux (incluido Raspberry Pi OS).
 - **Python:** Versión 3.7 o superior.
 - Dependencias especificadas en `requirements.txt`.
 
@@ -64,21 +68,6 @@ PyTEA_Pi/
 
 ---
 
-## ⚖️ Consideraciones legales
-### Uso de pictogramas de ARASAAC
-Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
-
-**Condiciones de uso:**
-- **Uso no comercial:** Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales, sin ningún propósito comercial.
-- **Reconocimiento de autoría:** ARASAAC y el Gobierno de Aragón son reconocidos como los autores y propietarios de los pictogramas utilizados.
-- **No alteración:** Los pictogramas no han sido modificados, salvo autorización expresa.
-
-Para más información sobre las condiciones de uso, visita la página oficial de ARASAAC: [Condiciones de uso de ARASAAC](https://arasaac.org/terms-of-use).
-
-Si deseas utilizar los pictogramas para fines comerciales o necesitas modificar los recursos, es obligatorio obtener autorización expresa de ARASAAC y del Gobierno de Aragón.
-
----
-
 ## 🧩 Contribución
 ¡Tu ayuda es bienvenida! Si deseas contribuir:
 1. Haz un fork del repositorio.
@@ -106,21 +95,22 @@ El texto completo de la licencia está disponible en el archivo [LICENSE](LICENS
 
 ---
 
-Para consultas sobre el uso del software, puedes contactarme directamente.
+## ⚖️ Consideraciones legales sobre los pictogramas de ARASAAC
 
----
-
-## ⚠️ Consideraciones legales sobre los pictogramas de ARASAAC
 Este proyecto utiliza pictogramas proporcionados por **ARASAAC (https://arasaac.org)**, una fuente gratuita de recursos gráficos destinados a personas con necesidades comunicativas específicas.
 
-![Logo ARASAAC](assets/logo_ARASAAC.png)
+<div align="center">
+    <img src="assets/logo_ARASAAC.png" alt="Logo ARASAAC" width="300">
+</div>
 
 ### Condiciones de uso de los pictogramas:
 - **Uso no comercial**: Los pictogramas se emplean exclusivamente para fines educativos, terapéuticos o personales. **No se permite su uso con fines comerciales** sin autorización expresa de ARASAAC.
 - **Reconocimiento de autoría**: ARASAAC y el Gobierno de Aragón deben ser reconocidos como los autores de los pictogramas en cualquier uso o distribución.
 - **No alteración**: Los pictogramas no pueden ser modificados sin autorización expresa.
 
-Puedes consultar las condiciones completas en la página oficial de ARASAAC: [https://arasaac.org/terms-of-use](https://arasaac.org/terms-of-use).
+Si deseas utilizar los pictogramas para fines comerciales o necesitas modificar los recursos, es obligatorio obtener autorización expresa de **ARASAAC** y del **Gobierno de Aragón**.
+
+Puedes consultar las condiciones completas en la página oficial de ARASAAC: [Condiciones de uso de ARASAAC](https://arasaac.org/terms-of-use).
 
 ---
 
