@@ -1,28 +1,15 @@
-MIT License
+## Licencia Creative Commons BY-NC-SA 4.0 (Reconocimiento - No Comercial - Compartir Igual)
 
-Copyright (c) 2024 Jose Carlos Wittmann
+Este trabajo está licenciado bajo la licencia **Creative Commons Atribución-NoComercial-CompartirIgual 4.0 Internacional**.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to use,
-copy, modify, merge, publish, and distribute the Software, subject to the following
-conditions:
+### Resumen de los términos principales:
+1. **Atribución (BY):** Se debe otorgar el crédito adecuado, proporcionar un enlace a la licencia e indicar si se han realizado cambios. Puedes hacerlo de cualquier manera razonable, pero no de forma que sugiera que tienes el apoyo del licenciante o que apruebas tu uso.
+2. **No Comercial (NC):** No se permite el uso del material con fines comerciales.
+3. **Compartir Igual (SA):** Si remezclas, transformas o creas a partir del material, debes distribuir tus contribuciones bajo la misma licencia que el original.
 
-1. **Non-Commercial Use Only**: The Software may not be used for any commercial
-   purpose, including selling, sublicensing, or distributing products or services
-   derived from the Software, without prior written permission from the copyright holder.
+### Notas importantes:
+- Este software se proporciona "tal cual", sin garantías de ningún tipo, explícitas o implícitas.
+- Los pictogramas utilizados en este proyecto están sujetos a las condiciones legales de ARASAAC (https://arasaac.org/terms-of-use).
 
-2. **Attribution**: Any use of the Software, including modifications or
-   derivatives, must give appropriate credit to the original author, Jose Carlos Wittmann,
-   and include this copyright notice in all copies or substantial portions
-   of the Software.
-
-3. **Permission for Commercial Use**: To use the Software for commercial purposes,
-   explicit written consent must be obtained from the copyright holder.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+### Más información:
+Para leer la licencia completa, visita [Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

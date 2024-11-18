@@ -84,12 +84,12 @@ PyTEA_Pi/
 ---
 
 ## 📜 Licencia
-Este proyecto está licenciado bajo la **[MIT License (Modificada para prohibir uso comercial)](LICENSE)**.
+Este proyecto está licenciado bajo la **[Creative Commons BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)**.
 
-### Condiciones principales de la licencia MIT personalizada:
-1. **Uso no comercial**: El software no puede ser utilizado con fines comerciales sin autorización explícita del autor.
-2. **Atribución**: Debe reconocerse a **Jose Carlos Wittmann** como el autor del proyecto en cualquier uso, copia o distribución.
-3. **Permiso para uso comercial**: Para usar este software en proyectos comerciales, se debe obtener autorización previa.
+### Resumen de la licencia:
+1. **Atribución**: Se debe dar crédito al autor original (**Jose Carlos Wittmann**) en cualquier uso o distribución del software.
+2. **No Comercial**: No se permite el uso con fines comerciales sin autorización previa.
+3. **Compartir Igual**: Si realizas modificaciones o derivados del software, estos deben ser compartidos bajo los mismos términos.
 
 El texto completo de la licencia está disponible en el archivo [LICENSE](LICENSE).
 
