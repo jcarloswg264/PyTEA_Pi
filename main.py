@@ -1,2 +1,4 @@
+from src.ventana_principal import PyTEAApp
+
 if __name__ == "__main__":
-    print("¡Bienvenido a PyTEA Pi!")
+    PyTEAApp().run()
