@@ -39,17 +39,30 @@ PyTEA_Pi/
 - **Python:** Versión 3.7 o superior.
 - Dependencias especificadas en `requirements.txt`.
 
+## 🛠️ Instalación
+
+### Requisitos previos
+
+- Sistema operativo: Cualquier distribución basada en Linux (incluido Raspberry Pi OS).
+- Python: Versión 3.7 o superior.
+- Dependencias especificadas en requirements.txt.
+
 ### Instrucciones
 1. Clona el repositorio:
    ```bash
    git clone git@github.com:jcarloswg264/PyTEA_Pi.git
    cd PyTEA_Pi
    ```
-2. Crea un entorno virtual y actívalo:
-   ```bash
-   python3 -m venv env
-   source env/bin/activate
-   ```
+2. Configura el entorno virtual:
+   - Si tienes direnv configurado, simplemente navega al directorio del proyecto y se activará automáticamente:
+     ```bash
+     cd ~/PyTEA_Pi
+     ```
+   - Si no usas direnv, crea y activa el entorno manualmente:
+     ```bash
+     python3 -m venv env
+     source env/bin/activate
+     ```
 3. Instala las dependencias:
    ```bash
    pip install -r requirements.txt
