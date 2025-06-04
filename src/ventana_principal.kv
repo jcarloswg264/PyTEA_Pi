@@ -1,0 +1,47 @@
+<VentanaPrincipal>:
+    orientation: 'vertical'
+
+    Label:
+        id: area_pictogramas
+        text: 'Pictogramas seleccionables'
+        size_hint: 1, 0.8
+        halign: 'center'
+        valign: 'middle'
+        color: 1, 1, 1, 1
+        text_size: self.size
+
+    BoxLayout:
+        size_hint: 1, 0.2
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        Button:
+            background_normal: 'assets/inicio.png'
+            size_hint: None, None
+            size: 80, 80
+        BoxLayout:
+            size_hint: 1, 1
+            Label:
+                text: 'Seleccionados'
+                size_hint: 1, 1
+                halign: 'center'
+                valign: 'middle'
+                color: 0, 0, 0, 1
+                text_size: self.size
+        Button:
+            background_normal: 'assets/play.png'
+            size_hint: None, None
+            size: 80, 80
+        Button:
+            background_normal: 'assets/borrar_ultimo.png'
+            size_hint: None, None
+            size: 80, 80
+        Button:
+            background_normal: 'assets/borrar_todo.png'
+            size_hint: None, None
+            size: 80, 80
