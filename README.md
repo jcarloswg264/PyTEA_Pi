@@ -39,14 +39,6 @@ PyTEA_Pi/
 - **Python:** Versión 3.7 o superior.
 - Dependencias especificadas en `requirements.txt`.
 
-## 🛠️ Instalación
-
-### Requisitos previos
-
-- Sistema operativo: Cualquier distribución basada en Linux (incluido Raspberry Pi OS).
-- Python: Versión 3.7 o superior.
-- Dependencias especificadas en requirements.txt.
-
 ### Instrucciones
 1. Clona el repositorio:
    ```bash
