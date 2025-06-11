@@ -3,6 +3,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
+from kivy.uix.gridlayout import GridLayout
+from pathlib import Path
 from kivy.graphics import Color, Rectangle
 from kivy.config import Config
 
@@ -16,16 +18,15 @@ class VentanaPrincipal(BoxLayout):
         super().__init__(**kwargs)
         self.orientation = "vertical"
 
-        # Área superior para los pictogramas seleccionables
-        self.area_pictogramas = Label(
-            text="Pictogramas seleccionables",
+        # Área superior para las categorías de pictogramas
+        self.area_pictogramas = GridLayout(
+            cols=4,
+            spacing=10,
+            padding=10,
             size_hint=(1, 0.8),
-            halign="center",
-            valign="middle",
-            color=(1, 1, 1, 1)  # Texto blanco
         )
-        self.area_pictogramas.bind(size=self.area_pictogramas.setter("text_size"))
         self.add_widget(self.area_pictogramas)
+        self._cargar_categorias()
 
         # Barra inferior (Layout con fondo blanco)
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
@@ -85,6 +86,17 @@ class VentanaPrincipal(BoxLayout):
     def _update_rect(self, instance, value):
         self.rect.size = instance.size
         self.rect.pos = instance.pos
+
+    def _cargar_categorias(self):
+        """Carga los pictogramas de las categorias y los agrega al layout"""
+        categorias_dir = Path("pictograms/categorias")
+        for ruta in sorted(categorias_dir.glob("*.png")):
+            boton = Button(
+                background_normal=str(ruta),
+                size_hint=(None, None),
+                size=(120, 120),
+            )
+            self.area_pictogramas.add_widget(boton)
 
 
 class PyTEAApp(App):
