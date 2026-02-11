@@ -1,14 +1,13 @@
+from pathlib import Path
+from math import ceil
+
 from kivy.app import App
+from kivy.config import Config
+from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.uix.widget import Widget
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
-from pathlib import Path
-from kivy.graphics import Color, Rectangle
-from kivy.config import Config
-from math import ceil
 
 # Configuración inicial de la ventana
 Config.set("graphics", "width", "800")
@@ -21,26 +20,26 @@ class VentanaPrincipal(BoxLayout):
         super().__init__(**kwargs)
         self.orientation = "vertical"
 
-        # Área superior para las categorías de pictogramas
+        # Área superior para categorías en 2 filas con scroll horizontal.
         self.contenedor_scroll = ScrollView(
             size_hint=(1, 0.8),
             do_scroll_x=True,
             do_scroll_y=False,
-            bar_width=6,
             scroll_type=["bars", "content"],
+            bar_width=6,
         )
-        self.area_pictogramas = GridLayout(
-            rows=2,
+        self.columnas_categorias = BoxLayout(
+            orientation="horizontal",
+            size_hint=(None, 1),
             spacing=10,
             padding=10,
-            size_hint=(None, None),
         )
-        self.contenedor_scroll.add_widget(self.area_pictogramas)
+        self.contenedor_scroll.add_widget(self.columnas_categorias)
         self.add_widget(self.contenedor_scroll)
 
         self.botones_categoria = []
+        self.columnas = []
         self.contenedor_scroll.bind(size=self._actualizar_tamano_categorias)
-        self.area_pictogramas.bind(size=self._actualizar_tamano_categorias)
         self._cargar_categorias()
 
         # Barra inferior (Layout con fondo blanco)
@@ -54,7 +53,7 @@ class VentanaPrincipal(BoxLayout):
         boton_inicio = Button(
             background_normal="assets/inicio.png",
             size_hint=(None, None),
-            size=(80, 80)
+            size=(80, 80),
         )
         barra_inferior.add_widget(boton_inicio)
 
@@ -65,7 +64,7 @@ class VentanaPrincipal(BoxLayout):
             size_hint=(1, 1),
             halign="center",
             valign="middle",
-            color=(0, 0, 0, 1)  # Texto negro
+            color=(0, 0, 0, 1),  # Texto negro
         )
         label_seleccionados.bind(size=label_seleccionados.setter("text_size"))
         area_seleccionados.add_widget(label_seleccionados)
@@ -75,7 +74,7 @@ class VentanaPrincipal(BoxLayout):
         boton_play = Button(
             background_normal="assets/play.png",
             size_hint=(None, None),
-            size=(80, 80)
+            size=(80, 80),
         )
         barra_inferior.add_widget(boton_play)
 
@@ -83,7 +82,7 @@ class VentanaPrincipal(BoxLayout):
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png",
             size_hint=(None, None),
-            size=(80, 80)
+            size=(80, 80),
         )
         barra_inferior.add_widget(boton_borrar_ultimo)
 
@@ -91,7 +90,7 @@ class VentanaPrincipal(BoxLayout):
         boton_borrar_todo = Button(
             background_normal="assets/borrar_todo.png",
             size_hint=(None, None),
-            size=(80, 80)
+            size=(80, 80),
         )
         barra_inferior.add_widget(boton_borrar_todo)
 
@@ -103,43 +102,54 @@ class VentanaPrincipal(BoxLayout):
         self.rect.pos = instance.pos
 
     def _cargar_categorias(self):
-        """Carga los pictogramas de las categorias y los agrega al layout"""
+        """Carga 16 categorías en columnas de 2 filas con scroll horizontal."""
         categorias_dir = Path("pictograms/categorias")
-        for ruta in sorted(categorias_dir.glob("*.png")):
+        rutas = sorted(categorias_dir.glob("*.png"))
+
+        # Crear una columna por cada par de categorías (2 filas fijas por columna).
+        total_columnas = ceil(len(rutas) / 2)
+        for _ in range(total_columnas):
+            columna = BoxLayout(
+                orientation="vertical",
+                size_hint=(None, 1),
+                spacing=10,
+            )
+            self.columnas_categorias.add_widget(columna)
+            self.columnas.append(columna)
+
+        for indice, ruta in enumerate(rutas):
             boton = Button(
                 background_normal=str(ruta),
                 size_hint=(None, None),
             )
-            self.area_pictogramas.add_widget(boton)
+            self.columnas[indice // 2].add_widget(boton)
             self.botones_categoria.append(boton)
+
         self._actualizar_tamano_categorias()
 
     def _actualizar_tamano_categorias(self, *_args):
         if not self.botones_categoria:
             return
 
-        padding_horizontal = self.area_pictogramas.padding[0] * 2
-        padding_vertical = self.area_pictogramas.padding[1] * 2
-        espacio_horizontal = self.area_pictogramas.spacing[0]
-        espacio_vertical = self.area_pictogramas.spacing[1]
+        padding_h = self.columnas_categorias.padding[0] * 2
+        padding_v = self.columnas_categorias.padding[1] * 2
+        espacio_h = self.columnas_categorias.spacing
+        espacio_v = self.columnas[0].spacing if self.columnas else 10
 
-        alto_contenedor = self.contenedor_scroll.height
-        alto_disponible = max(1, alto_contenedor - padding_vertical - espacio_vertical)
+        alto_contenedor = max(1, self.contenedor_scroll.height)
+        alto_disponible = max(1, alto_contenedor - padding_v - espacio_v)
         tamano_boton = alto_disponible / 2
 
-        # Dos filas fijas: tamaño homogéneo y scroll horizontal para columnas extra.
+        # Tamaño uniforme de botones y columnas para forzar 2 filas visuales.
         for boton in self.botones_categoria:
             boton.size = (tamano_boton, tamano_boton)
 
-        columnas = ceil(len(self.botones_categoria) / 2)
-        ancho_total = (
-            padding_horizontal
-            + columnas * tamano_boton
-            + max(0, columnas - 1) * espacio_horizontal
-        )
+        for columna in self.columnas:
+            columna.width = tamano_boton
 
-        self.area_pictogramas.height = alto_contenedor
-        self.area_pictogramas.width = ancho_total
+        columnas = len(self.columnas)
+        ancho_total = padding_h + columnas * tamano_boton + max(0, columnas - 1) * espacio_h
+        self.columnas_categorias.width = ancho_total
 
 
 class PyTEAApp(App):
