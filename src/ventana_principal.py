@@ -3,6 +3,7 @@ from math import ceil
 
 from kivy.app import App
 from kivy.config import Config
+from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -14,6 +15,7 @@ from kivy.uix.scrollview import ScrollView
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "480")
 Config.set("graphics", "resizable", True)
+Window.clearcolor = (1, 1, 1, 1)
 
 
 class VentanaPrincipal(BoxLayout):
