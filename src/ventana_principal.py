@@ -4,9 +4,11 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 from pathlib import Path
 from kivy.graphics import Color, Rectangle
 from kivy.config import Config
+from math import ceil
 
 # Configuración inicial de la ventana
 Config.set("graphics", "width", "800")
@@ -19,13 +21,22 @@ class VentanaPrincipal(BoxLayout):
         self.orientation = "vertical"
 
         # Área superior para las categorías de pictogramas
+        contenedor_scroll = ScrollView(
+            size_hint=(1, 0.8),
+            do_scroll_x=True,
+            do_scroll_y=False,
+            bar_width=6,
+        )
         self.area_pictogramas = GridLayout(
-            cols=4,
+            rows=2,
             spacing=10,
             padding=10,
-            size_hint=(1, 0.8),
+            size_hint=(None, 1),
         )
-        self.add_widget(self.area_pictogramas)
+        contenedor_scroll.add_widget(self.area_pictogramas)
+        self.add_widget(contenedor_scroll)
+        self.botones_categoria = []
+        self.area_pictogramas.bind(size=self._actualizar_tamano_categorias)
         self._cargar_categorias()
 
         # Barra inferior (Layout con fondo blanco)
@@ -94,9 +105,35 @@ class VentanaPrincipal(BoxLayout):
             boton = Button(
                 background_normal=str(ruta),
                 size_hint=(None, None),
-                size=(120, 120),
             )
             self.area_pictogramas.add_widget(boton)
+            self.botones_categoria.append(boton)
+        self._actualizar_tamano_categorias()
+
+    def _actualizar_tamano_categorias(self, *_args):
+        if not self.botones_categoria:
+            return
+
+        padding_horizontal = self.area_pictogramas.padding[0] * 2
+        padding_vertical = self.area_pictogramas.padding[1] * 2
+        espacio_vertical = self.area_pictogramas.spacing[1]
+        alto_disponible = max(
+            1,
+            self.area_pictogramas.height - padding_vertical - espacio_vertical,
+        )
+        tamano_boton = alto_disponible / 2
+
+        for boton in self.botones_categoria:
+            boton.size = (tamano_boton, tamano_boton)
+
+        columnas = ceil(len(self.botones_categoria) / 2)
+        espacio_horizontal = self.area_pictogramas.spacing[0]
+        ancho_total = (
+            padding_horizontal
+            + columnas * tamano_boton
+            + max(0, columnas - 1) * espacio_horizontal
+        )
+        self.area_pictogramas.width = ancho_total
 
 
 class PyTEAApp(App):
