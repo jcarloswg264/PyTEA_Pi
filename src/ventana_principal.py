@@ -15,13 +15,20 @@ from kivy.uix.scrollview import ScrollView
 Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "480")
 Config.set("graphics", "resizable", True)
-Window.clearcolor = (1, 1, 1, 1)
+Window.clearcolor = (0.96, 0.96, 0.96, 1)
 
 
 class VentanaPrincipal(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "vertical"
+
+        # Fondo gris claro moderno
+        with self.canvas.before:
+            Color(0.96, 0.96, 0.96, 1)
+            self.rect_fondo = Rectangle(size=self.size, pos=self.pos)
+
+        self.bind(size=self._update_rect_fondo, pos=self._update_rect_fondo)
 
         # Área superior para categorías: 2 filas + scroll horizontal
         self.contenedor_scroll = ScrollView(
@@ -107,6 +114,10 @@ class VentanaPrincipal(BoxLayout):
     def _update_rect(self, instance, value):
         self.rect.size = instance.size
         self.rect.pos = instance.pos
+
+    def _update_rect_fondo(self, instance, value):
+        self.rect_fondo.size = instance.size
+        self.rect_fondo.pos = instance.pos
 
     def _cargar_categorias(self):
         categorias_dir = Path("pictograms/categorias")
