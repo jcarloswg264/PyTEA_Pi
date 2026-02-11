@@ -6,9 +6,9 @@ from kivy.config import Config
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
-from kivy.clock import Clock
 
 # Configuración inicial de la ventana
 Config.set("graphics", "width", "800")
@@ -29,21 +29,18 @@ class VentanaPrincipal(BoxLayout):
             scroll_type=["bars", "content"],
             bar_width=6,
         )
-        self.columnas_categorias = BoxLayout(
-            orientation="horizontal",
-            size_hint=(None, None),
+        self.grid_categorias = GridLayout(
+            rows=2,                 # 2 filas fijas
             spacing=10,
             padding=10,
+            size_hint=(None, 1),    # clave para scroll horizontal
         )
-        self.contenedor_scroll.add_widget(self.columnas_categorias)
+        self.contenedor_scroll.add_widget(self.grid_categorias)
         self.add_widget(self.contenedor_scroll)
 
         self.botones_categoria = []
-        self.columnas = []
         self.contenedor_scroll.bind(size=self._actualizar_tamano_categorias)
-        self.bind(size=self._actualizar_tamano_categorias)
         self._cargar_categorias()
-        Clock.schedule_once(self._actualizar_tamano_categorias, 0)
 
         # Barra inferior (Layout con fondo blanco)
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
@@ -105,27 +102,18 @@ class VentanaPrincipal(BoxLayout):
         self.rect.pos = instance.pos
 
     def _cargar_categorias(self):
-        """Carga todos los pictogramas en columnas de 2 filas con scroll horizontal."""
         categorias_dir = Path("pictograms/categorias")
         rutas = sorted(categorias_dir.glob("*.png"))
 
-        # Crear una columna por cada par de categorías (2 filas fijas por columna).
-        total_columnas = ceil(len(rutas) / 2)
-        for _ in range(total_columnas):
-            columna = BoxLayout(
-                orientation="vertical",
-                size_hint=(None, None),
-                spacing=10,
-            )
-            self.columnas_categorias.add_widget(columna)
-            self.columnas.append(columna)
+        self.botones_categoria = []
+        self.grid_categorias.clear_widgets()
 
-        for indice, ruta in enumerate(rutas):
+        for ruta in rutas:
             boton = Button(
                 background_normal=str(ruta),
                 size_hint=(None, None),
             )
-            self.columnas[indice // 2].add_widget(boton)
+            self.grid_categorias.add_widget(boton)
             self.botones_categoria.append(boton)
 
         self._actualizar_tamano_categorias()
@@ -134,31 +122,47 @@ class VentanaPrincipal(BoxLayout):
         if not self.botones_categoria:
             return
 
-        padding_h = self.columnas_categorias.padding[0] * 2
-        padding_v = self.columnas_categorias.padding[1] * 2
-        espacio_h = self.columnas_categorias.spacing
-        espacio_v = self.columnas[0].spacing if self.columnas else 10
+        grid = self.grid_categorias
 
-        alto_contenedor = self.contenedor_scroll.height
-        if alto_contenedor <= 1:
-            return
+        # padding/spacing pueden ser número o (x,y) o (l,t,r,b)
+        if isinstance(grid.padding, (list, tuple)):
+            if len(grid.padding) == 4:
+                pad_x = grid.padding[0] + grid.padding[2]
+                pad_y = grid.padding[1] + grid.padding[3]
+            else:  # (x, y)
+                pad_x = grid.padding[0] * 2
+                pad_y = grid.padding[1] * 2
+        else:
+            pad_x = grid.padding * 2
+            pad_y = grid.padding * 2
 
-        alto_disponible = max(1, alto_contenedor - padding_v - espacio_v)
-        tamano_boton = int(alto_disponible / 2)
+        if isinstance(grid.spacing, (list, tuple)):
+            spacing_x = grid.spacing[0]
+            spacing_y = grid.spacing[1]
+        else:
+            spacing_x = grid.spacing
+            spacing_y = grid.spacing
 
-        # Tamaño uniforme de botones y columnas para forzar 2 filas visuales.
-        for boton in self.botones_categoria:
-            boton.size = (tamano_boton, tamano_boton)
+        h = max(1, self.contenedor_scroll.height)
 
-        altura_columna = (tamano_boton * 2) + espacio_v
-        for columna in self.columnas:
-            columna.width = tamano_boton
-            columna.height = altura_columna
+        # 2 filas => un solo espacio vertical entre filas
+        alto_disponible = max(1, h - pad_y - spacing_y)
+        btn_size = alto_disponible / 2
 
-        columnas = len(self.columnas)
-        ancho_total = padding_h + columnas * tamano_boton + max(0, columnas - 1) * espacio_h
-        self.columnas_categorias.width = ancho_total
-        self.columnas_categorias.height = alto_contenedor
+        # Forzar tamaño de celdas del grid (cuadradas)
+        grid.row_force_default = True
+        grid.col_force_default = True
+        grid.row_default_height = btn_size
+        grid.col_default_width = btn_size
+
+        for b in self.botones_categoria:
+            b.size = (btn_size, btn_size)
+
+        # con rows=2 => columnas necesarias:
+        cols = ceil(len(self.botones_categoria) / 2)
+
+        # Ancho total para que el ScrollView pueda scrollear horizontal
+        grid.width = pad_x + cols * btn_size + max(0, cols - 1) * spacing_x
 
 
 class PyTEAApp(App):
