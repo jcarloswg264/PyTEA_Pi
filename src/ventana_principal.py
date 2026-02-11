@@ -1,6 +1,5 @@
 from pathlib import Path
 from math import ceil
-import unicodedata
 
 from kivy.app import App
 from kivy.config import Config
@@ -168,12 +167,12 @@ class VentanaPrincipal(BoxLayout):
         self.categoria_actual = categoria
         self.contenedor_scroll.do_scroll_x = True
         self.contenedor_scroll.do_scroll_y = False
-        self.contenedor_scroll.clear_widgets()
-        self.contenedor_scroll.add_widget(self.grid_pictos)
 
-        pictos_dir = self._resolver_directorio_categoria(categoria)
-        rutas = sorted(pictos_dir.glob("*.png")) if pictos_dir else []
+        pictos_dir = Path("pictograms") / categoria
+        rutas = sorted(pictos_dir.glob("*.png"))
 
+        # Fijar columnas antes de añadir widgets evita GridLayoutException.
+        self.grid_pictos.cols = max(1, ceil(len(rutas) / 2))
         self.grid_pictos.clear_widgets()
         self.botones_pictos = []
 
@@ -185,6 +184,8 @@ class VentanaPrincipal(BoxLayout):
             self.grid_pictos.add_widget(boton)
             self.botones_pictos.append(boton)
 
+        self.contenedor_scroll.clear_widgets()
+        self.contenedor_scroll.add_widget(self.grid_pictos)
         self._actualizar_tamano_pictos()
 
     def _actualizar_tamano_categorias(self):
@@ -219,36 +220,18 @@ class VentanaPrincipal(BoxLayout):
         spacing_x, spacing_y = self._descomponer_spacing(grid.spacing)
 
         h = max(1, self.contenedor_scroll.height)
-        btn = max(1, (h - pad_y - spacing_y) / 2)
+        btn_size = max(1, (h - pad_y - spacing_y) / 2)
 
         grid.row_force_default = True
         grid.col_force_default = True
-        grid.row_default_height = btn
-        grid.col_default_width = btn
+        grid.row_default_height = btn_size
+        grid.col_default_width = btn_size
 
-        for b in self.botones_pictos:
-            b.size = (btn, btn)
+        for boton in self.botones_pictos:
+            boton.size = (btn_size, btn_size)
 
-        grid.cols = ceil(len(self.botones_pictos) / 2)
-        cols = grid.cols
-        grid.width = pad_x + cols * btn + max(0, cols - 1) * spacing_x
-
-    def _resolver_directorio_categoria(self, categoria):
-        base = Path("pictograms")
-        candidata = base / categoria
-        if candidata.exists():
-            return candidata
-
-        categoria_norm = self._normalizar_nombre(categoria)
-        for directorio in base.iterdir():
-            if directorio.is_dir() and self._normalizar_nombre(directorio.name) == categoria_norm:
-                return directorio
-        return None
-
-    def _normalizar_nombre(self, texto):
-        texto = unicodedata.normalize("NFKD", texto)
-        texto = "".join(c for c in texto if not unicodedata.combining(c))
-        return texto.lower().replace(" ", "_")
+        cols = max(1, grid.cols)
+        grid.width = pad_x + cols * btn_size + max(0, cols - 1) * spacing_x
 
     def _descomponer_padding(self, padding):
         if isinstance(padding, (list, tuple)):
