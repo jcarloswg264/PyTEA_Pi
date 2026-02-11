@@ -21,7 +21,7 @@ class VentanaPrincipal(BoxLayout):
         super().__init__(**kwargs)
         self.orientation = "vertical"
 
-        # Área superior para categorías en 2 filas con scroll horizontal.
+        # Área superior para categorías: 2 filas + scroll horizontal
         self.contenedor_scroll = ScrollView(
             size_hint=(1, 0.8),
             do_scroll_x=True,
@@ -29,12 +29,17 @@ class VentanaPrincipal(BoxLayout):
             scroll_type=["bars", "content"],
             bar_width=6,
         )
+
         self.grid_categorias = GridLayout(
-            rows=2,                 # 2 filas fijas
+            rows=2,                 # <-- 2 filas fijas
             spacing=10,
             padding=10,
-            size_hint=(None, 1),    # clave para scroll horizontal
+            size_hint=(None, 1),    # <-- clave: NO ocupar ancho automáticamente
         )
+
+        # <-- clave: el grid crece según su contenido => habilita scroll horizontal
+        self.grid_categorias.bind(minimum_width=self.grid_categorias.setter("width"))
+
         self.contenedor_scroll.add_widget(self.grid_categorias)
         self.add_widget(self.contenedor_scroll)
 
@@ -105,14 +110,11 @@ class VentanaPrincipal(BoxLayout):
         categorias_dir = Path("pictograms/categorias")
         rutas = sorted(categorias_dir.glob("*.png"))
 
-        self.botones_categoria = []
         self.grid_categorias.clear_widgets()
+        self.botones_categoria = []
 
         for ruta in rutas:
-            boton = Button(
-                background_normal=str(ruta),
-                size_hint=(None, None),
-            )
+            boton = Button(background_normal=str(ruta), size_hint=(None, None))
             self.grid_categorias.add_widget(boton)
             self.botones_categoria.append(boton)
 
@@ -124,45 +126,34 @@ class VentanaPrincipal(BoxLayout):
 
         grid = self.grid_categorias
 
-        # padding/spacing pueden ser número o (x,y) o (l,t,r,b)
-        if isinstance(grid.padding, (list, tuple)):
-            if len(grid.padding) == 4:
-                pad_x = grid.padding[0] + grid.padding[2]
-                pad_y = grid.padding[1] + grid.padding[3]
-            else:  # (x, y)
-                pad_x = grid.padding[0] * 2
-                pad_y = grid.padding[1] * 2
-        else:
-            pad_x = grid.padding * 2
-            pad_y = grid.padding * 2
+        # padding (l,t,r,b)
+        pad = grid.padding
+        pad_x = (pad[0] + pad[2]) if isinstance(pad, (list, tuple)) and len(pad) == 4 else (pad[0] * 2 if isinstance(pad, (list, tuple)) else pad * 2)
+        pad_y = (pad[1] + pad[3]) if isinstance(pad, (list, tuple)) and len(pad) == 4 else (pad[1] * 2 if isinstance(pad, (list, tuple)) else pad * 2)
 
-        if isinstance(grid.spacing, (list, tuple)):
-            spacing_x = grid.spacing[0]
-            spacing_y = grid.spacing[1]
-        else:
-            spacing_x = grid.spacing
-            spacing_y = grid.spacing
+        sp = grid.spacing
+        spacing_x = sp[0] if isinstance(sp, (list, tuple)) else sp
+        spacing_y = sp[1] if isinstance(sp, (list, tuple)) else sp
 
         h = max(1, self.contenedor_scroll.height)
+        alto_disponible = max(1, h - pad_y - spacing_y)  # 2 filas => 1 hueco vertical
+        btn = alto_disponible / 2
 
-        # 2 filas => un solo espacio vertical entre filas
-        alto_disponible = max(1, h - pad_y - spacing_y)
-        btn_size = alto_disponible / 2
-
-        # Forzar tamaño de celdas del grid (cuadradas)
+        # fuerza celdas cuadradas
         grid.row_force_default = True
         grid.col_force_default = True
-        grid.row_default_height = btn_size
-        grid.col_default_width = btn_size
+        grid.row_default_height = btn
+        grid.col_default_width = btn
 
         for b in self.botones_categoria:
-            b.size = (btn_size, btn_size)
+            b.size = (btn, btn)
 
-        # con rows=2 => columnas necesarias:
-        cols = ceil(len(self.botones_categoria) / 2)
+        # opcional (pero ayuda): fija columnas para que NUNCA cree 3 filas
+        grid.cols = ceil(len(self.botones_categoria) / 2)
 
-        # Ancho total para que el ScrollView pueda scrollear horizontal
-        grid.width = pad_x + cols * btn_size + max(0, cols - 1) * spacing_x
+        # ancho total => scroll horizontal
+        cols = grid.cols
+        grid.width = pad_x + cols * btn + max(0, cols - 1) * spacing_x
 
 
 class PyTEAApp(App):
