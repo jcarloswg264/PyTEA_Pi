@@ -115,7 +115,6 @@ class VentanaPrincipal(BoxLayout):
 
         self.add_widget(barra_inferior)
 
-        self._cargar_categorias()
         self.mostrar_categorias()
 
     def _crear_boton(self, **kwargs):
@@ -137,10 +136,19 @@ class VentanaPrincipal(BoxLayout):
             self._actualizar_tamano_pictos()
 
     def _cargar_categorias(self):
-        categorias_dir = Path("pictograms/categorias")
-        rutas = sorted(categorias_dir.glob("*.png"))
+        self.mostrar_categorias()
+
+    def mostrar_categorias(self):
+        self.vista_actual = "categorias"
+        self.categoria_actual = None
+        self.contenedor_scroll.do_scroll_x = True
+        self.contenedor_scroll.do_scroll_y = False
+
+        rutas = sorted(Path("pictograms/categorias").glob("*.png"))
 
         self.grid_categorias.clear_widgets()
+        self.grid_categorias.rows = 2
+        self.grid_categorias.cols = max(1, ceil(len(rutas) / 2))
         self.botones_categoria = []
 
         for ruta in rutas:
@@ -153,11 +161,6 @@ class VentanaPrincipal(BoxLayout):
             self.grid_categorias.add_widget(boton)
             self.botones_categoria.append(boton)
 
-    def mostrar_categorias(self):
-        self.vista_actual = "categorias"
-        self.categoria_actual = None
-        self.contenedor_scroll.do_scroll_x = True
-        self.contenedor_scroll.do_scroll_y = False
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.grid_categorias)
         self._actualizar_tamano_categorias()
@@ -168,12 +171,11 @@ class VentanaPrincipal(BoxLayout):
         self.contenedor_scroll.do_scroll_x = True
         self.contenedor_scroll.do_scroll_y = False
 
-        pictos_dir = Path("pictograms") / categoria
-        rutas = sorted(pictos_dir.glob("*.png"))
+        rutas = sorted((Path("pictograms") / categoria).glob("*.png"))
 
-        # Fijar columnas antes de añadir widgets evita GridLayoutException.
-        self.grid_pictos.cols = max(1, ceil(len(rutas) / 2))
         self.grid_pictos.clear_widgets()
+        self.grid_pictos.rows = 2
+        self.grid_pictos.cols = max(1, ceil(len(rutas) / 2))
         self.botones_pictos = []
 
         for ruta in rutas:
