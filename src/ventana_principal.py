@@ -15,27 +15,31 @@ Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "480")
 Config.set("graphics", "resizable", True)
 
+
 class VentanaPrincipal(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "vertical"
 
         # Área superior para las categorías de pictogramas
-        contenedor_scroll = ScrollView(
+        self.contenedor_scroll = ScrollView(
             size_hint=(1, 0.8),
             do_scroll_x=True,
             do_scroll_y=False,
             bar_width=6,
+            scroll_type=["bars", "content"],
         )
         self.area_pictogramas = GridLayout(
             rows=2,
             spacing=10,
             padding=10,
-            size_hint=(None, 1),
+            size_hint=(None, None),
         )
-        contenedor_scroll.add_widget(self.area_pictogramas)
-        self.add_widget(contenedor_scroll)
+        self.contenedor_scroll.add_widget(self.area_pictogramas)
+        self.add_widget(self.contenedor_scroll)
+
         self.botones_categoria = []
+        self.contenedor_scroll.bind(size=self._actualizar_tamano_categorias)
         self.area_pictogramas.bind(size=self._actualizar_tamano_categorias)
         self._cargar_categorias()
 
@@ -116,23 +120,25 @@ class VentanaPrincipal(BoxLayout):
 
         padding_horizontal = self.area_pictogramas.padding[0] * 2
         padding_vertical = self.area_pictogramas.padding[1] * 2
+        espacio_horizontal = self.area_pictogramas.spacing[0]
         espacio_vertical = self.area_pictogramas.spacing[1]
-        alto_disponible = max(
-            1,
-            self.area_pictogramas.height - padding_vertical - espacio_vertical,
-        )
+
+        alto_contenedor = self.contenedor_scroll.height
+        alto_disponible = max(1, alto_contenedor - padding_vertical - espacio_vertical)
         tamano_boton = alto_disponible / 2
 
+        # Dos filas fijas: tamaño homogéneo y scroll horizontal para columnas extra.
         for boton in self.botones_categoria:
             boton.size = (tamano_boton, tamano_boton)
 
         columnas = ceil(len(self.botones_categoria) / 2)
-        espacio_horizontal = self.area_pictogramas.spacing[0]
         ancho_total = (
             padding_horizontal
             + columnas * tamano_boton
             + max(0, columnas - 1) * espacio_horizontal
         )
+
+        self.area_pictogramas.height = alto_contenedor
         self.area_pictogramas.width = ancho_total
 
 
