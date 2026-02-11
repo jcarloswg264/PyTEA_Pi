@@ -8,6 +8,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
+from kivy.clock import Clock
 
 # Configuración inicial de la ventana
 Config.set("graphics", "width", "800")
@@ -30,7 +31,7 @@ class VentanaPrincipal(BoxLayout):
         )
         self.columnas_categorias = BoxLayout(
             orientation="horizontal",
-            size_hint=(None, 1),
+            size_hint=(None, None),
             spacing=10,
             padding=10,
         )
@@ -40,7 +41,9 @@ class VentanaPrincipal(BoxLayout):
         self.botones_categoria = []
         self.columnas = []
         self.contenedor_scroll.bind(size=self._actualizar_tamano_categorias)
+        self.bind(size=self._actualizar_tamano_categorias)
         self._cargar_categorias()
+        Clock.schedule_once(self._actualizar_tamano_categorias, 0)
 
         # Barra inferior (Layout con fondo blanco)
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
@@ -102,7 +105,7 @@ class VentanaPrincipal(BoxLayout):
         self.rect.pos = instance.pos
 
     def _cargar_categorias(self):
-        """Carga 16 categorías en columnas de 2 filas con scroll horizontal."""
+        """Carga todos los pictogramas en columnas de 2 filas con scroll horizontal."""
         categorias_dir = Path("pictograms/categorias")
         rutas = sorted(categorias_dir.glob("*.png"))
 
@@ -111,7 +114,7 @@ class VentanaPrincipal(BoxLayout):
         for _ in range(total_columnas):
             columna = BoxLayout(
                 orientation="vertical",
-                size_hint=(None, 1),
+                size_hint=(None, None),
                 spacing=10,
             )
             self.columnas_categorias.add_widget(columna)
@@ -136,20 +139,26 @@ class VentanaPrincipal(BoxLayout):
         espacio_h = self.columnas_categorias.spacing
         espacio_v = self.columnas[0].spacing if self.columnas else 10
 
-        alto_contenedor = max(1, self.contenedor_scroll.height)
+        alto_contenedor = self.contenedor_scroll.height
+        if alto_contenedor <= 1:
+            return
+
         alto_disponible = max(1, alto_contenedor - padding_v - espacio_v)
-        tamano_boton = alto_disponible / 2
+        tamano_boton = int(alto_disponible / 2)
 
         # Tamaño uniforme de botones y columnas para forzar 2 filas visuales.
         for boton in self.botones_categoria:
             boton.size = (tamano_boton, tamano_boton)
 
+        altura_columna = (tamano_boton * 2) + espacio_v
         for columna in self.columnas:
             columna.width = tamano_boton
+            columna.height = altura_columna
 
         columnas = len(self.columnas)
         ancho_total = padding_h + columnas * tamano_boton + max(0, columnas - 1) * espacio_h
         self.columnas_categorias.width = ancho_total
+        self.columnas_categorias.height = alto_contenedor
 
 
 class PyTEAApp(App):
