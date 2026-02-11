@@ -48,14 +48,13 @@ class VentanaPrincipal(BoxLayout):
         )
         self.grid_categorias.bind(minimum_width=self.grid_categorias.setter("width"))
 
-        self.pictos_cols = 4
         self.grid_pictos = GridLayout(
-            cols=self.pictos_cols,
+            rows=2,
             spacing=10,
             padding=10,
-            size_hint=(1, None),
+            size_hint=(None, 1),
         )
-        self.grid_pictos.bind(minimum_height=self.grid_pictos.setter("height"))
+        self.grid_pictos.bind(minimum_width=self.grid_pictos.setter("width"))
 
         self.add_widget(self.contenedor_scroll)
 
@@ -167,8 +166,8 @@ class VentanaPrincipal(BoxLayout):
     def mostrar_pictogramas(self, categoria):
         self.vista_actual = "pictos"
         self.categoria_actual = categoria
-        self.contenedor_scroll.do_scroll_x = False
-        self.contenedor_scroll.do_scroll_y = True
+        self.contenedor_scroll.do_scroll_x = True
+        self.contenedor_scroll.do_scroll_y = False
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.grid_pictos)
 
@@ -216,14 +215,11 @@ class VentanaPrincipal(BoxLayout):
             return
 
         grid = self.grid_pictos
-        grid.cols = max(1, self.pictos_cols)
+        pad_x, pad_y = self._descomponer_padding(grid.padding)
+        spacing_x, spacing_y = self._descomponer_spacing(grid.spacing)
 
-        pad_x, _pad_y = self._descomponer_padding(grid.padding)
-        spacing_x, _spacing_y = self._descomponer_spacing(grid.spacing)
-
-        w = max(1, self.contenedor_scroll.width)
-        ancho_disponible = max(1, w - pad_x - max(0, grid.cols - 1) * spacing_x)
-        btn = ancho_disponible / grid.cols
+        h = max(1, self.contenedor_scroll.height)
+        btn = max(1, (h - pad_y - spacing_y) / 2)
 
         grid.row_force_default = True
         grid.col_force_default = True
@@ -232,6 +228,10 @@ class VentanaPrincipal(BoxLayout):
 
         for b in self.botones_pictos:
             b.size = (btn, btn)
+
+        grid.cols = ceil(len(self.botones_pictos) / 2)
+        cols = grid.cols
+        grid.width = pad_x + cols * btn + max(0, cols - 1) * spacing_x
 
     def _resolver_directorio_categoria(self, categoria):
         base = Path("pictograms")
