@@ -3,6 +3,7 @@ from math import ceil
 
 from kivy.app import App
 from kivy.config import Config
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
@@ -129,6 +130,12 @@ class VentanaPrincipal(BoxLayout):
         self.rect_fondo.size = instance.size
         self.rect_fondo.pos = instance.pos
 
+
+    def _reset_scroll_inicio(self, *_args):
+        # Horizontal: izquierda
+        self.contenedor_scroll.scroll_x = 0.0
+        self.contenedor_scroll.scroll_y = 1.0  # por si alguna vez hay y, arriba
+
     def _on_scroll_size(self, *_args):
         if self.vista_actual == "categorias":
             self._actualizar_tamano_categorias()
@@ -163,6 +170,8 @@ class VentanaPrincipal(BoxLayout):
 
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.grid_categorias)
+        Clock.schedule_once(self._reset_scroll_inicio, 0)
+        Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_categorias()
 
     def mostrar_pictogramas(self, categoria):
@@ -188,6 +197,8 @@ class VentanaPrincipal(BoxLayout):
 
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.grid_pictos)
+        Clock.schedule_once(self._reset_scroll_inicio, 0)
+        Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_pictos()
 
     def _actualizar_tamano_categorias(self):
