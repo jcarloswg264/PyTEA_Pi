@@ -2,6 +2,7 @@ from pathlib import Path
 from math import ceil
 
 from kivy.app import App
+from kivy.animation import Animation
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -64,10 +65,19 @@ class VentanaPrincipal(BoxLayout):
         )
         self.grid_pictos.bind(minimum_width=self.grid_pictos.setter("width"))
 
+        self.grid_frase = GridLayout(
+            rows=2,
+            spacing=10,
+            padding=10,
+            size_hint=(None, 1),
+        )
+        self.grid_frase.bind(minimum_width=self.grid_frase.setter("width"))
+
         self.add_widget(self.contenedor_scroll)
 
         self.botones_categoria = []
         self.botones_pictos = []
+        self.botones_frase = []
         self.seleccionados = []
         self.widgets_seleccionados = []
         self.vista_actual = "categorias"
@@ -92,6 +102,15 @@ class VentanaPrincipal(BoxLayout):
 
         # Área central para pictogramas seleccionados (miniaturas con scroll horizontal)
         area_seleccionados = BoxLayout(size_hint=(1, 1))
+        self.area_seleccionados = area_seleccionados
+        with self.area_seleccionados.canvas.before:
+            self.flash_color = Color(1, 0, 0, 0)
+            self.flash_rect = Rectangle(
+                pos=self.area_seleccionados.pos,
+                size=self.area_seleccionados.size,
+            )
+        self.area_seleccionados.bind(pos=self._update_flash_rect, size=self._update_flash_rect)
+
         self.scroll_seleccionados = ScrollView(
             do_scroll_x=True,
             do_scroll_y=False,
@@ -114,6 +133,7 @@ class VentanaPrincipal(BoxLayout):
             size=(80, 80),
         )
         barra_inferior.add_widget(boton_play)
+        boton_play.bind(on_release=lambda *_: self.on_play())
 
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png",
@@ -152,6 +172,22 @@ class VentanaPrincipal(BoxLayout):
         self.rect_fondo.pos = instance.pos
 
 
+    def _update_flash_rect(self, instance, *_):
+        self.flash_rect.pos = instance.pos
+        self.flash_rect.size = instance.size
+
+    def destello_error_seleccionados(self):
+        Animation.cancel_all(self.flash_color, "a")
+        self.flash_color.a = 0
+        anim = Animation(a=0.35, duration=0.10) + Animation(a=0.0, duration=0.35)
+        anim.start(self.flash_color)
+
+    def on_play(self):
+        if not self.seleccionados:
+            self.destello_error_seleccionados()
+            return
+        self.mostrar_frase_seleccionados()
+
     def _reset_scroll_inicio(self, *_args):
         # Horizontal: izquierda
         self.contenedor_scroll.scroll_x = 0.0
@@ -160,8 +196,10 @@ class VentanaPrincipal(BoxLayout):
     def _on_scroll_size(self, *_args):
         if self.vista_actual == "categorias":
             self._actualizar_tamano_categorias()
-        else:
+        elif self.vista_actual == "pictos":
             self._actualizar_tamano_pictos()
+        elif self.vista_actual == "frase":
+            self._actualizar_tamano_frase()
 
     def _cargar_categorias(self):
         self.mostrar_categorias()
@@ -207,6 +245,7 @@ class VentanaPrincipal(BoxLayout):
         self.grid_pictos.rows = 2
         self.grid_pictos.cols = max(1, ceil(len(rutas) / 2))
         self.botones_pictos = []
+        self.botones_frase = []
 
         for ruta in rutas:
             boton = self._crear_boton(
@@ -222,6 +261,27 @@ class VentanaPrincipal(BoxLayout):
         Clock.schedule_once(self._reset_scroll_inicio, 0)
         Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_pictos()
+
+    def mostrar_frase_seleccionados(self):
+        rutas = list(self.seleccionados)
+        self.vista_actual = "frase"
+        self.contenedor_scroll.do_scroll_x = True
+        self.contenedor_scroll.do_scroll_y = False
+
+        self.grid_frase.clear_widgets()
+        self.grid_frase.rows = 2
+        self.grid_frase.cols = max(1, ceil(len(rutas) / 2))
+        self.botones_frase = []
+
+        for ruta in rutas:
+            widget = ImageButton(source=ruta, size_hint=(None, None))
+            self.grid_frase.add_widget(widget)
+            self.botones_frase.append(widget)
+
+        self.contenedor_scroll.clear_widgets()
+        self.contenedor_scroll.add_widget(self.grid_frase)
+        Clock.schedule_once(self._reset_scroll_inicio, 0)
+        self._actualizar_tamano_frase()
 
     def seleccionar_picto(self, ruta_png: str):
         self.seleccionados.append(ruta_png)
@@ -306,6 +366,28 @@ class VentanaPrincipal(BoxLayout):
         grid.col_default_width = btn_size
 
         for boton in self.botones_pictos:
+            boton.size = (btn_size, btn_size)
+
+        cols = max(1, grid.cols)
+        grid.width = pad_x + cols * btn_size + max(0, cols - 1) * spacing_x
+
+    def _actualizar_tamano_frase(self):
+        if not self.botones_frase:
+            return
+
+        grid = self.grid_frase
+        pad_x, pad_y = self._descomponer_padding(grid.padding)
+        spacing_x, spacing_y = self._descomponer_spacing(grid.spacing)
+
+        h = max(1, self.contenedor_scroll.height)
+        btn_size = max(1, (h - pad_y - spacing_y) / 2)
+
+        grid.row_force_default = True
+        grid.col_force_default = True
+        grid.row_default_height = btn_size
+        grid.col_default_width = btn_size
+
+        for boton in self.botones_frase:
             boton.size = (btn_size, btn_size)
 
         cols = max(1, grid.cols)
