@@ -224,9 +224,7 @@ class VentanaPrincipal(BoxLayout):
         self.layout_seleccionados.add_widget(mini)
         self.widgets_seleccionados.append(mini)
 
-        Clock.schedule_once(
-            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 0.0), 0
-        )
+        Clock.schedule_once(self._auto_scroll_seleccionados, 0)
 
         # volver a categorías
         self.mostrar_categorias()
@@ -237,16 +235,24 @@ class VentanaPrincipal(BoxLayout):
         self.seleccionados.pop()
         widget = self.widgets_seleccionados.pop()
         self.layout_seleccionados.remove_widget(widget)
-        Clock.schedule_once(
-            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 0.0), 0
-        )
+        Clock.schedule_once(self._auto_scroll_seleccionados, 0)
 
     def borrar_todo(self):
         self.seleccionados.clear()
         for widget in self.widgets_seleccionados:
             self.layout_seleccionados.remove_widget(widget)
         self.widgets_seleccionados.clear()
-        self.scroll_seleccionados.scroll_x = 0.0
+        Clock.schedule_once(self._auto_scroll_seleccionados, 0)
+
+    def _auto_scroll_seleccionados(self, *_):
+        sv = self.scroll_seleccionados
+        content = self.layout_seleccionados
+
+        # si el contenido es más ancho que el viewport, ir a la derecha
+        if content.width > sv.width:
+            sv.scroll_x = 1.0
+        else:
+            sv.scroll_x = 0.0
 
     def _actualizar_tamano_categorias(self):
         if not self.botones_categoria:
