@@ -7,6 +7,7 @@ from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
@@ -65,13 +66,19 @@ class VentanaPrincipal(BoxLayout):
         )
         self.grid_pictos.bind(minimum_width=self.grid_pictos.setter("width"))
 
-        self.frase_container = BoxLayout(size_hint=(1, 1), padding=10)
+        self.frase_container = BoxLayout(size_hint=(1, 1))
+        self.frase_center = AnchorLayout(
+            anchor_x="center",
+            anchor_y="center",
+            size_hint=(1, 1),
+        )
         self.grid_frase = GridLayout(
             spacing=10,
             padding=10,
-            size_hint=(1, 1),
+            size_hint=(None, None),
         )
-        self.frase_container.add_widget(self.grid_frase)
+        self.frase_center.add_widget(self.grid_frase)
+        self.frase_container.add_widget(self.frase_center)
 
         self.add_widget(self.contenedor_scroll)
 
@@ -80,6 +87,7 @@ class VentanaPrincipal(BoxLayout):
         self.botones_frase = []
         self.seleccionados = []
         self.widgets_seleccionados = []
+        self.frase_rutas = []
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
@@ -261,8 +269,15 @@ class VentanaPrincipal(BoxLayout):
         Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_pictos()
 
-    def mostrar_frase_seleccionados(self):
-        rutas = list(self.seleccionados)
+    def mostrar_frase_seleccionados(self, rutas=None):
+        if rutas is None:
+            if self.seleccionados:
+                rutas = list(self.seleccionados)
+            else:
+                rutas = list(self.frase_rutas)
+        else:
+            rutas = list(rutas)
+
         if not rutas:
             return
 
@@ -313,6 +328,10 @@ class VentanaPrincipal(BoxLayout):
         self.grid_frase.row_default_height = btn_size_elegido
         self.grid_frase.col_default_width = btn_size_elegido
 
+        grid_w = pad_x + cols_elegidas * btn_size_elegido + max(0, cols_elegidas - 1) * spacing_x
+        grid_h = pad_y + filas_elegidas * btn_size_elegido + max(0, filas_elegidas - 1) * spacing_y
+        self.grid_frase.size = (grid_w, grid_h)
+
         for ruta in rutas:
             widget = ImageButton(
                 source=ruta,
@@ -322,16 +341,24 @@ class VentanaPrincipal(BoxLayout):
             self.grid_frase.add_widget(widget)
             self.botones_frase.append(widget)
 
+        self.frase_rutas = list(rutas)
+
+        self.seleccionados.clear()
+        for widget in self.widgets_seleccionados:
+            self.layout_seleccionados.remove_widget(widget)
+        self.widgets_seleccionados.clear()
+        self.scroll_seleccionados.scroll_x = 0.0
+
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.frase_container)
 
     def _reflow_frase_si_visible(self):
         if self.vista_actual != "frase":
             return
-        if not self.seleccionados:
+        if not self.botones_frase:
             return
         if self.contenedor_scroll.children and self.contenedor_scroll.children[0] is self.frase_container:
-            self.mostrar_frase_seleccionados()
+            self.mostrar_frase_seleccionados(self.frase_rutas)
 
     def seleccionar_picto(self, ruta_png: str):
         self.seleccionados.append(ruta_png)
