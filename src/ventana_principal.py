@@ -9,7 +9,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
+from kivy.uix.image import Image
 from kivy.uix.scrollview import ScrollView
 
 # Configuración inicial de la ventana
@@ -60,6 +60,8 @@ class VentanaPrincipal(BoxLayout):
 
         self.botones_categoria = []
         self.botones_pictos = []
+        self.seleccionados = []
+        self.widgets_seleccionados = []
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
@@ -80,17 +82,22 @@ class VentanaPrincipal(BoxLayout):
         boton_inicio.bind(on_release=lambda *_: self.mostrar_categorias())
         barra_inferior.add_widget(boton_inicio)
 
-        # Área central para pictogramas seleccionados
+        # Área central para pictogramas seleccionados (miniaturas con scroll horizontal)
         area_seleccionados = BoxLayout(size_hint=(1, 1))
-        label_seleccionados = Label(
-            text="Seleccionados",
-            size_hint=(1, 1),
-            halign="center",
-            valign="middle",
-            color=(0, 0, 0, 1),
+        self.scroll_seleccionados = ScrollView(
+            do_scroll_x=True,
+            do_scroll_y=False,
+            bar_width=6,
         )
-        label_seleccionados.bind(size=label_seleccionados.setter("text_size"))
-        area_seleccionados.add_widget(label_seleccionados)
+        self.layout_seleccionados = BoxLayout(
+            orientation="horizontal",
+            size_hint=(None, 1),
+            spacing=8,
+            padding=(8, 0),
+        )
+        self.layout_seleccionados.bind(minimum_width=self.layout_seleccionados.setter("width"))
+        self.scroll_seleccionados.add_widget(self.layout_seleccionados)
+        area_seleccionados.add_widget(self.scroll_seleccionados)
         barra_inferior.add_widget(area_seleccionados)
 
         boton_play = Button(
@@ -106,6 +113,7 @@ class VentanaPrincipal(BoxLayout):
             size=(80, 80),
         )
         barra_inferior.add_widget(boton_borrar_ultimo)
+        boton_borrar_ultimo.bind(on_release=lambda *_: self.borrar_ultimo())
 
         boton_borrar_todo = Button(
             background_normal="assets/borrar_todo.png",
@@ -113,6 +121,7 @@ class VentanaPrincipal(BoxLayout):
             size=(80, 80),
         )
         barra_inferior.add_widget(boton_borrar_todo)
+        boton_borrar_todo.bind(on_release=lambda *_: self.borrar_todo())
 
         self.add_widget(barra_inferior)
 
@@ -192,6 +201,7 @@ class VentanaPrincipal(BoxLayout):
                 background_normal=str(ruta),
                 size_hint=(None, None),
             )
+            boton.bind(on_release=lambda _btn, p=str(ruta): self.seleccionar_picto(p))
             self.grid_pictos.add_widget(boton)
             self.botones_pictos.append(boton)
 
@@ -200,6 +210,44 @@ class VentanaPrincipal(BoxLayout):
         Clock.schedule_once(self._reset_scroll_inicio, 0)
         Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_pictos()
+
+    def seleccionar_picto(self, ruta_png: str):
+        self.seleccionados.append(ruta_png)
+
+        mini = Image(
+            source=ruta_png,
+            size_hint=(None, None),
+            size=(70, 70),
+            allow_stretch=True,
+            keep_ratio=True,
+        )
+        self.layout_seleccionados.add_widget(mini)
+        self.widgets_seleccionados.append(mini)
+
+        # mover scroll al final para ver el último añadido
+        Clock.schedule_once(
+            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 1.0), 0
+        )
+
+        # volver a categorías
+        self.mostrar_categorias()
+
+    def borrar_ultimo(self):
+        if not self.seleccionados:
+            return
+        self.seleccionados.pop()
+        widget = self.widgets_seleccionados.pop()
+        self.layout_seleccionados.remove_widget(widget)
+        Clock.schedule_once(
+            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 1.0), 0
+        )
+
+    def borrar_todo(self):
+        self.seleccionados.clear()
+        for widget in self.widgets_seleccionados:
+            self.layout_seleccionados.remove_widget(widget)
+        self.widgets_seleccionados.clear()
+        self.scroll_seleccionados.scroll_x = 0.0
 
     def _actualizar_tamano_categorias(self):
         if not self.botones_categoria:
