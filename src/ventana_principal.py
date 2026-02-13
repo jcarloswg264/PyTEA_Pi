@@ -7,6 +7,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
@@ -17,6 +18,13 @@ Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "480")
 Config.set("graphics", "resizable", True)
 Window.clearcolor = (0.96, 0.96, 0.96, 1)
+
+
+class ImageButton(ButtonBehavior, Image):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.allow_stretch = True
+        self.keep_ratio = True
 
 
 class VentanaPrincipal(BoxLayout):
@@ -76,8 +84,6 @@ class VentanaPrincipal(BoxLayout):
         # Botón de inicio (vuelve a categorías)
         boton_inicio = Button(
             background_normal="assets/inicio.png",
-            background_down="assets/inicio.png",
-            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -104,8 +110,6 @@ class VentanaPrincipal(BoxLayout):
 
         boton_play = Button(
             background_normal="assets/play.png",
-            background_down="assets/play.png",
-            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -113,8 +117,6 @@ class VentanaPrincipal(BoxLayout):
 
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png",
-            background_down="assets/borrar_ultimo.png",
-            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -123,8 +125,6 @@ class VentanaPrincipal(BoxLayout):
 
         boton_borrar_todo = Button(
             background_normal="assets/borrar_todo.png",
-            background_down="assets/borrar_todo.png",
-            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -136,11 +136,12 @@ class VentanaPrincipal(BoxLayout):
         self.mostrar_categorias()
 
     def _crear_boton(self, **kwargs):
-        if "background_normal" in kwargs:
-            kwargs.setdefault("background_down", kwargs["background_normal"])
-            kwargs.setdefault("background_color", (1, 1, 1, 0))
-        clase = globals().get("ShadowButton", Button)
-        return clase(**kwargs)
+        source = kwargs.pop("source", None)
+        if source is None and "background_normal" in kwargs:
+            source = kwargs.pop("background_normal")
+        kwargs.pop("background_down", None)
+        kwargs.pop("background_color", None)
+        return ImageButton(source=source, **kwargs)
 
     def _update_rect(self, instance, value):
         self.rect.size = instance.size
@@ -181,7 +182,7 @@ class VentanaPrincipal(BoxLayout):
         for ruta in rutas:
             categoria = ruta.stem
             boton = self._crear_boton(
-                background_normal=str(ruta),
+                source=str(ruta),
                 size_hint=(None, None),
             )
             boton.bind(on_release=lambda _btn, cat=categoria: self.mostrar_pictogramas(cat))
@@ -209,7 +210,7 @@ class VentanaPrincipal(BoxLayout):
 
         for ruta in rutas:
             boton = self._crear_boton(
-                background_normal=str(ruta),
+                source=str(ruta),
                 size_hint=(None, None),
             )
             boton.bind(on_release=lambda _btn, p=str(ruta): self.seleccionar_picto(p))
