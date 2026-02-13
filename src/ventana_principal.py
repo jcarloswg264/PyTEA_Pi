@@ -1,5 +1,5 @@
 from pathlib import Path
-from math import ceil
+from math import ceil, floor
 
 from kivy.app import App
 from kivy.animation import Animation
@@ -65,13 +65,13 @@ class VentanaPrincipal(BoxLayout):
         )
         self.grid_pictos.bind(minimum_width=self.grid_pictos.setter("width"))
 
+        self.frase_container = BoxLayout(size_hint=(1, 1), padding=10)
         self.grid_frase = GridLayout(
-            rows=2,
             spacing=10,
             padding=10,
-            size_hint=(None, 1),
+            size_hint=(1, 1),
         )
-        self.grid_frase.bind(minimum_width=self.grid_frase.setter("width"))
+        self.frase_container.add_widget(self.grid_frase)
 
         self.add_widget(self.contenedor_scroll)
 
@@ -83,6 +83,7 @@ class VentanaPrincipal(BoxLayout):
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
+        self.contenedor_scroll.bind(size=lambda *_: self._reflow_frase_si_visible())
 
         # Barra inferior (Layout con fondo blanco)
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
@@ -198,8 +199,6 @@ class VentanaPrincipal(BoxLayout):
             self._actualizar_tamano_categorias()
         elif self.vista_actual == "pictos":
             self._actualizar_tamano_pictos()
-        elif self.vista_actual == "frase":
-            self._actualizar_tamano_frase()
 
     def _cargar_categorias(self):
         self.mostrar_categorias()
@@ -264,24 +263,75 @@ class VentanaPrincipal(BoxLayout):
 
     def mostrar_frase_seleccionados(self):
         rutas = list(self.seleccionados)
+        if not rutas:
+            return
+
         self.vista_actual = "frase"
-        self.contenedor_scroll.do_scroll_x = True
+        self.contenedor_scroll.do_scroll_x = False
         self.contenedor_scroll.do_scroll_y = False
 
         self.grid_frase.clear_widgets()
-        self.grid_frase.rows = 2
-        self.grid_frase.cols = max(1, ceil(len(rutas) / 2))
         self.botones_frase = []
 
+        ancho = max(1, self.contenedor_scroll.width)
+        alto = max(1, self.contenedor_scroll.height)
+
+        pad_x, pad_y = self._descomponer_padding(self.grid_frase.padding)
+        spacing_x, spacing_y = self._descomponer_spacing(self.grid_frase.spacing)
+
+        n = len(rutas)
+        filas_elegidas = 3
+        cols_elegidas = max(1, ceil(n / filas_elegidas))
+        btn_size_elegido = 1
+
+        for filas in [1, 2, 3]:
+            cols = max(1, ceil(n / filas))
+            btn_size_por_ancho = (ancho - pad_x - max(0, cols - 1) * spacing_x) / cols
+            btn_size_por_alto = (alto - pad_y - max(0, filas - 1) * spacing_y) / filas
+            btn_size = floor(min(btn_size_por_ancho, btn_size_por_alto))
+
+            ancho_total = (btn_size * cols) + pad_x + max(0, cols - 1) * spacing_x
+            alto_total = (btn_size * filas) + pad_y + max(0, filas - 1) * spacing_y
+
+            if btn_size > 0 and ancho_total <= ancho and alto_total <= alto:
+                filas_elegidas = filas
+                cols_elegidas = cols
+                btn_size_elegido = btn_size
+                break
+
+        if btn_size_elegido <= 0:
+            filas_elegidas = 3
+            cols_elegidas = max(1, ceil(n / filas_elegidas))
+            btn_size_por_ancho = (ancho - pad_x - max(0, cols_elegidas - 1) * spacing_x) / cols_elegidas
+            btn_size_por_alto = (alto - pad_y - max(0, filas_elegidas - 1) * spacing_y) / filas_elegidas
+            btn_size_elegido = max(1, floor(min(btn_size_por_ancho, btn_size_por_alto)))
+
+        self.grid_frase.rows = filas_elegidas
+        self.grid_frase.cols = cols_elegidas
+        self.grid_frase.row_force_default = True
+        self.grid_frase.col_force_default = True
+        self.grid_frase.row_default_height = btn_size_elegido
+        self.grid_frase.col_default_width = btn_size_elegido
+
         for ruta in rutas:
-            widget = ImageButton(source=ruta, size_hint=(None, None))
+            widget = ImageButton(
+                source=ruta,
+                size_hint=(None, None),
+                size=(btn_size_elegido, btn_size_elegido),
+            )
             self.grid_frase.add_widget(widget)
             self.botones_frase.append(widget)
 
         self.contenedor_scroll.clear_widgets()
-        self.contenedor_scroll.add_widget(self.grid_frase)
-        Clock.schedule_once(self._reset_scroll_inicio, 0)
-        self._actualizar_tamano_frase()
+        self.contenedor_scroll.add_widget(self.frase_container)
+
+    def _reflow_frase_si_visible(self):
+        if self.vista_actual != "frase":
+            return
+        if not self.seleccionados:
+            return
+        if self.contenedor_scroll.children and self.contenedor_scroll.children[0] is self.frase_container:
+            self.mostrar_frase_seleccionados()
 
     def seleccionar_picto(self, ruta_png: str):
         self.seleccionados.append(ruta_png)
@@ -366,28 +416,6 @@ class VentanaPrincipal(BoxLayout):
         grid.col_default_width = btn_size
 
         for boton in self.botones_pictos:
-            boton.size = (btn_size, btn_size)
-
-        cols = max(1, grid.cols)
-        grid.width = pad_x + cols * btn_size + max(0, cols - 1) * spacing_x
-
-    def _actualizar_tamano_frase(self):
-        if not self.botones_frase:
-            return
-
-        grid = self.grid_frase
-        pad_x, pad_y = self._descomponer_padding(grid.padding)
-        spacing_x, spacing_y = self._descomponer_spacing(grid.spacing)
-
-        h = max(1, self.contenedor_scroll.height)
-        btn_size = max(1, (h - pad_y - spacing_y) / 2)
-
-        grid.row_force_default = True
-        grid.col_force_default = True
-        grid.row_default_height = btn_size
-        grid.col_default_width = btn_size
-
-        for boton in self.botones_frase:
             boton.size = (btn_size, btn_size)
 
         cols = max(1, grid.cols)
