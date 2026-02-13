@@ -224,9 +224,8 @@ class VentanaPrincipal(BoxLayout):
         self.layout_seleccionados.add_widget(mini)
         self.widgets_seleccionados.append(mini)
 
-        # mover scroll al final para ver el último añadido
         Clock.schedule_once(
-            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 1.0), 0
+            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 0.0), 0
         )
 
         # volver a categorías
@@ -239,7 +238,7 @@ class VentanaPrincipal(BoxLayout):
         widget = self.widgets_seleccionados.pop()
         self.layout_seleccionados.remove_widget(widget)
         Clock.schedule_once(
-            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 1.0), 0
+            lambda *_: setattr(self.scroll_seleccionados, "scroll_x", 0.0), 0
         )
 
     def borrar_todo(self):
