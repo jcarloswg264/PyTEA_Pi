@@ -72,12 +72,13 @@ class VentanaPrincipal(BoxLayout):
             anchor_y="center",
             size_hint=(1, 1),
         )
-        self.grid_frase = GridLayout(
-            spacing=10,
-            padding=10,
+        self.frase_rows = BoxLayout(
+            orientation="vertical",
             size_hint=(None, None),
+            spacing=10,
+            padding=(10, 10),
         )
-        self.frase_center.add_widget(self.grid_frase)
+        self.frase_center.add_widget(self.frase_rows)
         self.frase_container.add_widget(self.frase_center)
 
         self.add_widget(self.contenedor_scroll)
@@ -211,6 +212,21 @@ class VentanaPrincipal(BoxLayout):
     def _cargar_categorias(self):
         self.mostrar_categorias()
 
+    def _split_counts(self, n, filas):
+        base = n // filas
+        extra = n % filas
+        return [base + 1 if i < extra else base for i in range(filas)]
+
+    def _calcular_btn_size_frase(self, ancho, alto, filas, n):
+        spacing_x = 10
+        spacing_y = 10
+        padding_x = 20
+        padding_y = 20
+        cols = max(1, ceil(n / filas))
+        btn_w = (ancho - padding_x - max(0, cols - 1) * spacing_x) / cols
+        btn_h = (alto - padding_y - max(0, filas - 1) * spacing_y) / filas
+        return max(1, floor(min(btn_w, btn_h)))
+
     def mostrar_categorias(self):
         self.vista_actual = "categorias"
         self.categoria_actual = None
@@ -285,63 +301,59 @@ class VentanaPrincipal(BoxLayout):
         self.contenedor_scroll.do_scroll_x = False
         self.contenedor_scroll.do_scroll_y = False
 
-        self.grid_frase.clear_widgets()
-        self.botones_frase = []
+        self.frase_rows.clear_widgets()
 
         ancho = max(1, self.contenedor_scroll.width)
         alto = max(1, self.contenedor_scroll.height)
-
-        pad_x, pad_y = self._descomponer_padding(self.grid_frase.padding)
-        spacing_x, spacing_y = self._descomponer_spacing(self.grid_frase.spacing)
-
         n = len(rutas)
-        filas_elegidas = 3
-        cols_elegidas = max(1, ceil(n / filas_elegidas))
-        btn_size_elegido = 1
 
-        for filas in [1, 2, 3]:
-            cols = max(1, ceil(n / filas))
-            btn_size_por_ancho = (ancho - pad_x - max(0, cols - 1) * spacing_x) / cols
-            btn_size_por_alto = (alto - pad_y - max(0, filas - 1) * spacing_y) / filas
-            btn_size = floor(min(btn_size_por_ancho, btn_size_por_alto))
+        filas = 1
+        alto_util = max(1, alto - 20)
+        size1 = self._calcular_btn_size_frase(ancho, alto, 1, n)
+        if size1 < 0.50 * alto_util:
+            filas = 2
 
-            ancho_total = (btn_size * cols) + pad_x + max(0, cols - 1) * spacing_x
-            alto_total = (btn_size * filas) + pad_y + max(0, filas - 1) * spacing_y
+        size2 = self._calcular_btn_size_frase(ancho, alto, 2, n)
+        if filas == 2 and size2 < 0.33 * alto_util:
+            filas = 3
 
-            if btn_size > 0 and ancho_total <= ancho and alto_total <= alto:
-                filas_elegidas = filas
-                cols_elegidas = cols
-                btn_size_elegido = btn_size
-                break
+        btn = self._calcular_btn_size_frase(ancho, alto, filas, n)
+        counts = self._split_counts(n, filas)
 
-        if btn_size_elegido <= 0:
-            filas_elegidas = 3
-            cols_elegidas = max(1, ceil(n / filas_elegidas))
-            btn_size_por_ancho = (ancho - pad_x - max(0, cols_elegidas - 1) * spacing_x) / cols_elegidas
-            btn_size_por_alto = (alto - pad_y - max(0, filas_elegidas - 1) * spacing_y) / filas_elegidas
-            btn_size_elegido = max(1, floor(min(btn_size_por_ancho, btn_size_por_alto)))
+        spacing_x = 10
+        spacing_y = 10
+        padding_x = 20
+        padding_y = 20
 
-        self.grid_frase.rows = filas_elegidas
-        self.grid_frase.cols = cols_elegidas
-        self.grid_frase.row_force_default = True
-        self.grid_frase.col_force_default = True
-        self.grid_frase.row_default_height = btn_size_elegido
-        self.grid_frase.col_default_width = btn_size_elegido
-
-        grid_w = pad_x + cols_elegidas * btn_size_elegido + max(0, cols_elegidas - 1) * spacing_x
-        grid_h = pad_y + filas_elegidas * btn_size_elegido + max(0, filas_elegidas - 1) * spacing_y
-        self.grid_frase.size = (grid_w, grid_h)
-
-        for ruta in rutas:
-            widget = ImageButton(
-                source=ruta,
+        widths = []
+        idx = 0
+        for count in counts:
+            row = BoxLayout(
+                orientation="horizontal",
                 size_hint=(None, None),
-                size=(btn_size_elegido, btn_size_elegido),
+                spacing=spacing_x,
             )
-            self.grid_frase.add_widget(widget)
-            self.botones_frase.append(widget)
+            for _ in range(count):
+                ruta = rutas[idx]
+                idx += 1
+                widget = ImageButton(
+                    source=ruta,
+                    size_hint=(None, None),
+                    size=(btn, btn),
+                )
+                row.add_widget(widget)
+
+            row.width = count * btn + max(0, count - 1) * spacing_x
+            row.height = btn
+            widths.append(row.width)
+            self.frase_rows.add_widget(row)
+
+        max_row_w = max(widths) if widths else 0
+        total_h = filas * btn + max(0, filas - 1) * spacing_y
+        self.frase_rows.size = (max_row_w + padding_x, total_h + padding_y)
 
         self.frase_rutas = list(rutas)
+        self.botones_frase = []
 
         self.seleccionados.clear()
         for widget in self.widgets_seleccionados:
@@ -355,7 +367,7 @@ class VentanaPrincipal(BoxLayout):
     def _reflow_frase_si_visible(self):
         if self.vista_actual != "frase":
             return
-        if not self.botones_frase:
+        if not self.frase_rutas:
             return
         if self.contenedor_scroll.children and self.contenedor_scroll.children[0] is self.frase_container:
             self.mostrar_frase_seleccionados(self.frase_rutas)
