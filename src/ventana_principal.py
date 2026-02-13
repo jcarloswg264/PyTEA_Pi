@@ -76,6 +76,8 @@ class VentanaPrincipal(BoxLayout):
         # Botón de inicio (vuelve a categorías)
         boton_inicio = Button(
             background_normal="assets/inicio.png",
+            background_down="assets/inicio.png",
+            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -102,6 +104,8 @@ class VentanaPrincipal(BoxLayout):
 
         boton_play = Button(
             background_normal="assets/play.png",
+            background_down="assets/play.png",
+            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -109,6 +113,8 @@ class VentanaPrincipal(BoxLayout):
 
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png",
+            background_down="assets/borrar_ultimo.png",
+            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -117,6 +123,8 @@ class VentanaPrincipal(BoxLayout):
 
         boton_borrar_todo = Button(
             background_normal="assets/borrar_todo.png",
+            background_down="assets/borrar_todo.png",
+            background_color=(1, 1, 1, 0),
             size_hint=(None, None),
             size=(80, 80),
         )
@@ -128,6 +136,9 @@ class VentanaPrincipal(BoxLayout):
         self.mostrar_categorias()
 
     def _crear_boton(self, **kwargs):
+        if "background_normal" in kwargs:
+            kwargs.setdefault("background_down", kwargs["background_normal"])
+            kwargs.setdefault("background_color", (1, 1, 1, 0))
         clase = globals().get("ShadowButton", Button)
         return clase(**kwargs)
 
