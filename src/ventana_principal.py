@@ -333,6 +333,11 @@ class VentanaPrincipal(BoxLayout):
                 size_hint=(None, None),
                 spacing=spacing_x,
             )
+            row_anchor = AnchorLayout(
+                anchor_x="center",
+                anchor_y="center",
+                size_hint=(1, None),
+            )
             for _ in range(count):
                 ruta = rutas[idx]
                 idx += 1
@@ -345,8 +350,10 @@ class VentanaPrincipal(BoxLayout):
 
             row.width = count * btn + max(0, count - 1) * spacing_x
             row.height = btn
+            row_anchor.height = btn
+            row_anchor.add_widget(row)
             widths.append(row.width)
-            self.frase_rows.add_widget(row)
+            self.frase_rows.add_widget(row_anchor)
 
         max_row_w = max(widths) if widths else 0
         total_h = filas * btn + max(0, filas - 1) * spacing_y
