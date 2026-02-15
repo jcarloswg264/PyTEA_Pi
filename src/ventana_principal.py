@@ -21,10 +21,11 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 
-from componentes.barra_seleccionados import BarraSeleccionados
-from componentes.reproductor_audio_frase import ReproductorAudioFrase
-from componentes.vista_frase import VistaFrase
-from widgets.boton_imagen import BotonImagen
+from .componentes.barra_seleccionados import BarraSeleccionados
+from .componentes.reproductor_audio_frase import ReproductorAudioFrase
+from .componentes.vista_frase import VistaFrase
+from .widgets.boton_imagen import BotonImagen
+from .widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
 
 # Configuración inicial de ventana.
 Config.set("graphics", "width", "800")

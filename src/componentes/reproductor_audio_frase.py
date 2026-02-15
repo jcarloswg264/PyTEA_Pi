@@ -5,7 +5,7 @@ from pathlib import Path
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 
-from widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
+from ..widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
 
 
 class ReproductorAudioFrase:
