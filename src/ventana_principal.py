@@ -5,6 +5,7 @@ from kivy.app import App
 from kivy.animation import Animation
 from kivy.config import Config
 from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.anchorlayout import AnchorLayout
@@ -89,6 +90,9 @@ class VentanaPrincipal(BoxLayout):
         self.seleccionados = []
         self.widgets_seleccionados = []
         self.frase_rutas = []
+        self.frase_widgets = []
+        self._play_frase_index = 0
+        self._sound_actual = None
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
@@ -198,6 +202,53 @@ class VentanaPrincipal(BoxLayout):
             return
         self.mostrar_frase_seleccionados()
 
+    def _detener_reproduccion_frase(self):
+        if self._sound_actual:
+            try:
+                self._sound_actual.stop()
+            except Exception:
+                pass
+        self._sound_actual = None
+        self._play_frase_index = 0
+        self.frase_rutas = []
+        self.frase_widgets = []
+
+    def _audio_para_png(self, png_path: str) -> Path | None:
+        p = Path(png_path)
+        categoria = p.parent.name
+        nombre = p.stem
+        cand = Path("audio") / categoria / f"{nombre}.mp3"
+        return cand if cand.exists() else None
+
+    def _reproducir_siguiente_audio(self, *_):
+        if self._sound_actual:
+            try:
+                self._sound_actual.stop()
+            except Exception:
+                pass
+            self._sound_actual = None
+
+        rutas = getattr(self, "frase_rutas", [])
+        if self._play_frase_index >= len(rutas):
+            return
+
+        png = rutas[self._play_frase_index]
+        audio_path = self._audio_para_png(png)
+        self._play_frase_index += 1
+
+        if not audio_path:
+            Clock.schedule_once(self._reproducir_siguiente_audio, 0)
+            return
+
+        sonido = SoundLoader.load(str(audio_path))
+        if not sonido:
+            Clock.schedule_once(self._reproducir_siguiente_audio, 0)
+            return
+
+        self._sound_actual = sonido
+        sonido.bind(on_stop=lambda *_: Clock.schedule_once(self._reproducir_siguiente_audio, 0))
+        sonido.play()
+
     def _reset_scroll_inicio(self, *_args):
         # Horizontal: izquierda
         self.contenedor_scroll.scroll_x = 0.0
@@ -228,6 +279,7 @@ class VentanaPrincipal(BoxLayout):
         return max(1, floor(min(btn_w, btn_h)))
 
     def mostrar_categorias(self):
+        self._detener_reproduccion_frase()
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.do_scroll_x = True
@@ -285,7 +337,7 @@ class VentanaPrincipal(BoxLayout):
         Clock.schedule_once(self._reset_scroll_inicio, 0.01)
         self._actualizar_tamano_pictos()
 
-    def mostrar_frase_seleccionados(self, rutas=None):
+    def mostrar_frase_seleccionados(self, rutas=None, iniciar_audio=True):
         if rutas is None:
             if self.seleccionados:
                 rutas = list(self.seleccionados)
@@ -302,6 +354,7 @@ class VentanaPrincipal(BoxLayout):
         self.contenedor_scroll.do_scroll_y = False
 
         self.frase_rows.clear_widgets()
+        self.frase_widgets = []
 
         ancho = max(1, self.contenedor_scroll.width)
         alto = max(1, self.contenedor_scroll.height)
@@ -347,6 +400,7 @@ class VentanaPrincipal(BoxLayout):
                     size=(btn, btn),
                 )
                 row.add_widget(widget)
+                self.frase_widgets.append(widget)
 
             row.width = count * btn + max(0, count - 1) * spacing_x
             row.height = btn
@@ -371,13 +425,17 @@ class VentanaPrincipal(BoxLayout):
         self.contenedor_scroll.clear_widgets()
         self.contenedor_scroll.add_widget(self.frase_container)
 
+        if iniciar_audio:
+            self._play_frase_index = 0
+            self._reproducir_siguiente_audio()
+
     def _reflow_frase_si_visible(self):
         if self.vista_actual != "frase":
             return
         if not self.frase_rutas:
             return
         if self.contenedor_scroll.children and self.contenedor_scroll.children[0] is self.frase_container:
-            self.mostrar_frase_seleccionados(self.frase_rutas)
+            self.mostrar_frase_seleccionados(self.frase_rutas, iniciar_audio=False)
 
     def seleccionar_picto(self, ruta_png: str):
         self.seleccionados.append(ruta_png)
