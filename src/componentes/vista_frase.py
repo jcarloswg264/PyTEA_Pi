@@ -5,7 +5,7 @@ from math import ceil, floor
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 
-from widgets.boton_imagen import BotonImagen
+from ..widgets.boton_imagen import BotonImagen
 
 
 def dividir_en_filas_equilibradas(n: int, filas: int) -> list[int]:
