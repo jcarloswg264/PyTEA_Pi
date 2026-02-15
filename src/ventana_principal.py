@@ -94,6 +94,7 @@ class VentanaPrincipal(BoxLayout):
         self._play_frase_index = 0
         self._sound_actual = None
         self._highlight_index = None
+        self._frase_visible = False
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
@@ -198,13 +199,21 @@ class VentanaPrincipal(BoxLayout):
         anim.start(self.flash_color)
 
     def on_play(self):
+        if self._frase_visible:
+            if not self.frase_rutas:
+                self.destello_error_seleccionados()
+                return
+            self._stop_audio_frase()
+            self._play_frase_index = 0
+            self._reproducir_siguiente_audio()
+            return
+
         if not self.seleccionados:
             self.destello_error_seleccionados()
             return
         self.mostrar_frase_seleccionados()
 
-    def _detener_reproduccion_frase(self):
-        self._clear_highlight()
+    def _stop_audio_frase(self):
         if self._sound_actual:
             try:
                 self._sound_actual.stop()
@@ -212,6 +221,10 @@ class VentanaPrincipal(BoxLayout):
                 pass
         self._sound_actual = None
         self._play_frase_index = 0
+        self._clear_highlight()
+
+    def _detener_reproduccion_frase(self):
+        self._stop_audio_frase()
         self.frase_rutas = []
         self.frase_widgets = []
 
@@ -275,6 +288,7 @@ class VentanaPrincipal(BoxLayout):
 
         rutas = getattr(self, "frase_rutas", [])
         if self._play_frase_index >= len(rutas):
+            self._sound_actual = None
             self._clear_highlight()
             return
 
@@ -327,6 +341,7 @@ class VentanaPrincipal(BoxLayout):
 
     def mostrar_categorias(self):
         self._detener_reproduccion_frase()
+        self._frase_visible = False
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.do_scroll_x = True
@@ -356,6 +371,7 @@ class VentanaPrincipal(BoxLayout):
         self._actualizar_tamano_categorias()
 
     def mostrar_pictogramas(self, categoria):
+        self._frase_visible = False
         self.vista_actual = "pictos"
         self.categoria_actual = categoria
         self.contenedor_scroll.do_scroll_x = True
@@ -397,6 +413,7 @@ class VentanaPrincipal(BoxLayout):
             return
 
         self.vista_actual = "frase"
+        self._frase_visible = True
         self.contenedor_scroll.do_scroll_x = False
         self.contenedor_scroll.do_scroll_y = False
 
