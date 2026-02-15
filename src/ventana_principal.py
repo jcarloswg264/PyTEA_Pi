@@ -7,7 +7,7 @@ from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
-from kivy.graphics import Color, Rectangle
+from kivy.graphics import Color, Line, Rectangle
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.behaviors import ButtonBehavior
@@ -93,6 +93,7 @@ class VentanaPrincipal(BoxLayout):
         self.frase_widgets = []
         self._play_frase_index = 0
         self._sound_actual = None
+        self._highlight_index = None
         self.vista_actual = "categorias"
         self.categoria_actual = None
         self.contenedor_scroll.bind(size=self._on_scroll_size)
@@ -203,6 +204,7 @@ class VentanaPrincipal(BoxLayout):
         self.mostrar_frase_seleccionados()
 
     def _detener_reproduccion_frase(self):
+        self._clear_highlight()
         if self._sound_actual:
             try:
                 self._sound_actual.stop()
@@ -212,6 +214,49 @@ class VentanaPrincipal(BoxLayout):
         self._play_frase_index = 0
         self.frase_rutas = []
         self.frase_widgets = []
+
+    def _clear_highlight(self):
+        if self._highlight_index is None:
+            return
+
+        try:
+            widget = self.frase_widgets[self._highlight_index]
+            if hasattr(widget, "_highlight_line"):
+                widget.canvas.after.remove(widget._highlight_color)
+                widget.canvas.after.remove(widget._highlight_line)
+                del widget._highlight_line
+                del widget._highlight_color
+        except Exception:
+            pass
+
+        self._highlight_index = None
+
+    def _resaltar_frase(self, index):
+        self._clear_highlight()
+
+        if index < 0 or index >= len(self.frase_widgets):
+            return
+
+        widget = self.frase_widgets[index]
+
+        with widget.canvas.after:
+            widget._highlight_color = Color(0.2, 0.6, 1, 1)
+            widget._highlight_line = Line(
+                rectangle=(widget.x, widget.y, widget.width, widget.height),
+                width=3,
+            )
+
+        def _update_rect(*_):
+            if hasattr(widget, "_highlight_line"):
+                widget._highlight_line.rectangle = (
+                    widget.x,
+                    widget.y,
+                    widget.width,
+                    widget.height,
+                )
+
+        widget.bind(pos=_update_rect, size=_update_rect)
+        self._highlight_index = index
 
     def _audio_para_png(self, png_path: str) -> Path | None:
         p = Path(png_path)
@@ -230,8 +275,10 @@ class VentanaPrincipal(BoxLayout):
 
         rutas = getattr(self, "frase_rutas", [])
         if self._play_frase_index >= len(rutas):
+            self._clear_highlight()
             return
 
+        self._resaltar_frase(self._play_frase_index)
         png = rutas[self._play_frase_index]
         audio_path = self._audio_para_png(png)
         self._play_frase_index += 1
