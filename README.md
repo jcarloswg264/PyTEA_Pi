@@ -3,96 +3,70 @@
 </div>
 
 # PyTEA Pi
-**PyTEA Pi** es una aplicación diseñada para facilitar la comunicación de personas con Trastorno del Espectro Autista (TEA) o Trastorno Específico del Lenguaje (TEL). La aplicación utiliza pictogramas organizados por categorías, acompañados de locuciones, para permitir la formación de frases de manera intuitiva y accesible.
+
+**PyTEA Pi** es una aplicación de Comunicación Aumentativa y Alternativa (CAA) pensada para facilitar la expresión de personas con Trastorno del Espectro Autista (TEA) o Trastorno Específico del Lenguaje (TEL).
+
+Permite construir frases mediante pictogramas organizados por categorías y reproducirlas con locución automática.
 
 ---
 
-## 🚀 Características
-- **Interfaz gráfica adaptada**: Navegación intuitiva basada en pictogramas categorizados.
-- **Feedback visual y auditivo**: Los pictogramas seleccionados generan frases visibles y locuciones claras.
-- **Menú estructurado**: Hasta 20 categorías de pictogramas organizadas por colores y temáticas.
-- **Independencia de hardware**: Compatible con cualquier sistema operativo basado en Linux.
-- **Código modular**: Diseño extensible para futuras funcionalidades y mejoras.
+## ✨ ¿Qué hace la aplicación?
+
+- Muestra pictogramas organizados por categorías.
+- Permite seleccionar varios pictogramas para formar una frase.
+- Visualiza la frase completa en pantalla.
+- Reproduce automáticamente el audio correspondiente a cada pictograma en orden.
+- Ofrece feedback visual durante la reproducción.
+
+La aplicación está pensada para ser sencilla, visual e intuitiva, especialmente en entornos educativos y terapéuticos.
 
 ---
 
-## 📂 Estructura del proyecto
-```plaintext
+## 🖥️ Funcionamiento básico
+
+1. Al iniciar la aplicación se muestran las categorías disponibles.
+2. Al seleccionar una categoría se muestran sus pictogramas.
+3. Cada pictograma seleccionado se añade a la barra inferior.
+4. Al pulsar **Play**, la frase se muestra en pantalla y se reproduce automáticamente.
+5. El botón **Inicio** permite volver al menú principal.
+
+---
+
+## 🧩 Estructura del proyecto
 PyTEA_Pi/
-├── assets/               # Recursos estáticos como el logo.
-├── audio/                # Archivos de audio organizados por categorías.
-├── data/                 # Configuración y mapeo de datos.
-├── pictograms/           # Pictogramas organizados por categorías.
-├── scripts/              # Scripts para despliegue y automatización.
-├── src/                  # Código fuente principal de la aplicación.
-├── tests/                # Tests automatizados.
-├── README.md             # Documentación del proyecto.
-├── requirements.txt      # Lista de dependencias del proyecto.
-└── main.py               # Archivo principal para ejecutar la aplicación.
+├── assets/ # Recursos gráficos (logos, iconos)
+├── audio/ # Audios organizados por categorías
+├── pictograms/ # Pictogramas organizados por categorías
+├── scripts/ # Scripts auxiliares
+├── src/ # Código fuente principal
+├── main.py # Punto de entrada de la aplicación
+├── requirements.txt
+└── README.md
+
+El código está organizado de forma modular para facilitar su mantenimiento y evolución.
+
+---
+
+## 🛠️ Instalación
+
+### Requisitos
+
+- Linux (incluido Raspberry Pi OS)
+- Python 3.8 o superior
+- Dependencias listadas en `requirements.txt`
+
+### Instalación
+
+```bash
+git clone git@github.com:jcarloswg264/PyTEA_Pi.git
+cd PyTEA_Pi
+
+python3 -m venv env
+source env/bin/activate
+
+pip install -r requirements.txt
+python main.py
 ```
-
----
-
-## 🛠️ Instalación
-### Requisitos previos
-- **Sistema operativo:** Cualquier distribución basada en Linux (incluido Raspberry Pi OS).
-- **Python:** Versión 3.7 o superior.
-- Dependencias especificadas en `requirements.txt`.
-
-## 🛠️ Instalación
-
-### Requisitos previos
-
-- Sistema operativo: Cualquier distribución basada en Linux (incluido Raspberry Pi OS).
-- Python: Versión 3.7 o superior.
-- Dependencias especificadas en requirements.txt.
-
-### Instrucciones
-1. Clona el repositorio:
-   ```bash
-   git clone git@github.com:jcarloswg264/PyTEA_Pi.git
-   cd PyTEA_Pi
-   ```
-2. Configura el entorno virtual:
-   - Si tienes direnv configurado, simplemente navega al directorio del proyecto y se activará automáticamente:
-     ```bash
-     cd ~/PyTEA_Pi
-     ```
-   - Si no usas direnv, crea y activa el entorno manualmente:
-     ```bash
-     python3 -m venv env
-     source env/bin/activate
-     ```
-3. Instala las dependencias:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Ejecuta la aplicación:
-   ```bash
-   python main.py
-   ```
-
----
-
-## 🖼️ Uso
-1. Al iniciar la aplicación, se muestra una pantalla con categorías de pictogramas.
-2. Selecciona una categoría para visualizar los pictogramas disponibles.
-3. Haz clic en un pictograma para reproducir su locución.
-
----
-
-## 🧩 Contribución
-¡Tu ayuda es bienvenida! Si deseas contribuir:
-1. Haz un fork del repositorio.
-2. Crea una rama para tu funcionalidad o corrección:
-   ```bash
-   git checkout -b feature/nueva-funcionalidad
-   ```
-3. Realiza tus cambios y haz un commit:
-   ```bash
-   git commit -m "Añadida nueva funcionalidad"
-   ```
-4. Haz un push a tu rama y abre un pull request.
 
 ---
 
