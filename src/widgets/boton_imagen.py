@@ -14,7 +14,5 @@ class BotonImagen(ButtonBehavior, Image):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Permitimos que la textura se adapte al tamaño fijado por layout.
-        self.allow_stretch = True
-        # Conservamos proporción para que los pictogramas no se deformen.
-        self.keep_ratio = True
+        # "contain" mantiene la imagen completa sin deformación ni recorte.
+        self.fit_mode = "contain"
