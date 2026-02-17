@@ -39,8 +39,7 @@ class BarraSeleccionados(BoxLayout):
             source=ruta_png,
             size_hint=(None, None),
             size=(70, 70),
-            allow_stretch=True,
-            keep_ratio=True,
+            fit_mode="contain",
         )
         self.contenido.add_widget(mini)
         self.widgets.append(mini)
