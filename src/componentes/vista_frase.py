@@ -24,7 +24,8 @@ class VistaFrase(AnchorLayout):
     """Renderiza una frase de pictogramas centrada y sin scroll (1 a 3 filas)."""
 
     def __init__(self, **kwargs):
-        super().__init__(anchor_x="center", anchor_y="center", size_hint=(1, 1), **kwargs)
+        kwargs.setdefault("size_hint", (1, 1))
+        super().__init__(anchor_x="center", anchor_y="center", **kwargs)
 
         self.rutas = []
         self.widgets_en_orden = []
