@@ -17,8 +17,8 @@ class ReproductorAudioFrase:
     """
 
     def __init__(self):
-        self._rutas = []
-        self._widgets = []
+        self._rutas_actuales = []
+        self._widgets_actuales = []
         self._indice = 0
         self._sonido_actual = None
         self._widget_resaltado = None
@@ -26,8 +26,10 @@ class ReproductorAudioFrase:
 
     def reproducir(self, rutas_png: list[str], widgets: list) -> None:
         """Inicia una nueva reproducción desde el principio."""
-        self._rutas = list(rutas_png)
-        self._widgets = list(widgets)
+        # Tomamos una foto fija (snapshot) de rutas/widgets para evitar
+        # desincronización si la UI muta mientras se reproduce audio.
+        self._rutas_actuales = list(rutas_png)[:]
+        self._widgets_actuales = list(widgets)[:]
         self._indice = 0
         self._token_reproduccion += 1
         self._detener_sonido_actual()
@@ -36,7 +38,7 @@ class ReproductorAudioFrase:
 
     def reiniciar(self) -> None:
         """Reinicia la reproducción usando la frase ya cargada."""
-        if not self._rutas:
+        if not self._rutas_actuales:
             return
         self._indice = 0
         self._token_reproduccion += 1
@@ -50,8 +52,8 @@ class ReproductorAudioFrase:
         self._detener_sonido_actual()
         self._indice = 0
         self._limpiar_resaltado()
-        self._rutas = []
-        self._widgets = []
+        self._rutas_actuales = []
+        self._widgets_actuales = []
 
     def esta_activo(self) -> bool:
         """Indica si hay un sonido en reproducción."""
@@ -59,35 +61,31 @@ class ReproductorAudioFrase:
 
     def actualizar_widgets(self, widgets: list) -> None:
         """Actualiza referencias de widgets tras un reflow de la frase."""
-        self._widgets = list(widgets)
-
-    def _audio_para_png(self, ruta_png: str) -> Path | None:
-        png = Path(ruta_png)
-        categoria = png.parent.name
-        nombre = png.stem
-        candidato = Path("audio") / categoria / f"{nombre}.mp3"
-        return candidato if candidato.exists() else None
+        # También copiamos aquí para no depender de referencias mutables externas.
+        self._widgets_actuales = list(widgets)[:]
 
     def _reproducir_siguiente(self, token: int, *_):
         if token != self._token_reproduccion:
             return
 
-        if self._indice >= len(self._rutas):
+        if self._indice >= len(self._rutas_actuales):
             self._sonido_actual = None
             self._limpiar_resaltado()
             return
 
         self._resaltar_indice(self._indice)
 
-        ruta_png = self._rutas[self._indice]
-        ruta_audio = self._audio_para_png(ruta_png)
+        png = Path(self._rutas_actuales[self._indice])
+        categoria = png.parent.name
+        stem = png.stem
+        mp3 = Path("audio") / categoria / f"{stem}.mp3"
         self._indice += 1
 
-        if not ruta_audio:
+        if not mp3.exists():
             Clock.schedule_once(lambda *_: self._reproducir_siguiente(token), 0)
             return
 
-        sonido = SoundLoader.load(str(ruta_audio))
+        sonido = SoundLoader.load(str(mp3))
         if not sonido:
             Clock.schedule_once(lambda *_: self._reproducir_siguiente(token), 0)
             return
@@ -111,10 +109,10 @@ class ReproductorAudioFrase:
     def _resaltar_indice(self, indice: int):
         self._limpiar_resaltado()
 
-        if indice < 0 or indice >= len(self._widgets):
+        if indice < 0 or indice >= len(self._widgets_actuales):
             return
 
-        widget = self._widgets[indice]
+        widget = self._widgets_actuales[indice]
         aplicar_resaltado_borde(widget)
         self._widget_resaltado = widget
 

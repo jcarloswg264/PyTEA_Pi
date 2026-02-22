@@ -88,6 +88,7 @@ class VentanaPrincipal(BoxLayout):
 
     def _crear_barra_inferior(self):
         """Construye barra inferior (inicio, seleccionados, play y borrado)."""
+        # Esta barra se crea una sola vez en __init__; no se recrea ni re-bindea.
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
         with barra_inferior.canvas.before:
             Color(1, 1, 1, 1)
