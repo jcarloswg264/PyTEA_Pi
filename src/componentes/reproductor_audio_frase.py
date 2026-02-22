@@ -17,54 +17,61 @@ class ReproductorAudioFrase:
     """
 
     def __init__(self):
+        self._sonido_actual = None
+        self._activo = False
+        self._token = 0
+        self._parada_manual = False
+        # Guardamos el handler para poder hacer unbind fiable del mismo callback.
+        self._handler_on_stop = None
         self._rutas = []
         self._widgets = []
         self._indice = 0
-        self._sonido_actual = None
-        self._callback_on_stop_actual = None
         self._widget_resaltado = None
+
+    def detener(self) -> None:
+        """Detiene reproducción y limpia resaltado/estado temporal."""
         self._activo = False
-        self._token = 0
+        # El token invalida callbacks antiguos que lleguen tarde.
+        self._token += 1
+        self._parada_manual = True
+        self._limpiar_resaltado()
+
+        if self._sonido_actual:
+            if self._handler_on_stop is not None:
+                try:
+                    self._sonido_actual.unbind(on_stop=self._handler_on_stop)
+                except Exception:
+                    pass
+            try:
+                self._sonido_actual.stop()
+            except Exception:
+                pass
+            self._sonido_actual = None
+            self._handler_on_stop = None
+
+        self._parada_manual = False
+        self._rutas = []
+        self._widgets = []
+        self._indice = 0
 
     def reproducir(self, rutas_png: list[str], widgets: list) -> None:
         """Inicia una nueva reproducción desde el principio."""
-        # Siempre detenemos antes de empezar una frase nueva para que no quede
-        # ninguna secuencia anterior viva en paralelo.
+        # Siempre partimos de estado limpio para evitar solapes de secuencias.
         self.detener()
-
-        # Token: invalida callbacks viejos que pudieran dispararse tarde.
-        self._token += 1
-        token = self._token
-
-        # Snapshot defensivo para no depender de listas mutables externas.
         self._rutas = list(rutas_png)
         self._widgets = list(widgets)
         self._indice = 0
         self._activo = True
-        self._limpiar_resaltado()
+        # Token nuevo para esta ejecución; invalida on_stop de secuencias viejas.
+        self._token += 1
+        token = self._token
         self._reproducir_indice(token)
 
     def reiniciar(self) -> None:
         """Reinicia la reproducción usando la frase ya cargada."""
         if not self._rutas:
             return
-
-        self._token += 1
-        token = self._token
-        self._activo = True
-        self._indice = 0
-        self._detener_sonido_actual()
-        self._limpiar_resaltado()
-        self._reproducir_indice(token)
-
-    def detener(self) -> None:
-        """Detiene reproducción y limpia resaltado/estado temporal."""
-        self._activo = False
-        # Al incrementar token invalidamos callbacks antiguos pendientes.
-        self._token += 1
-        self._detener_sonido_actual()
-        self._indice = 0
-        self._limpiar_resaltado()
+        self.reproducir(self._rutas, self._widgets)
 
     def esta_activo(self) -> bool:
         """Indica si hay un sonido en reproducción."""
@@ -74,63 +81,69 @@ class ReproductorAudioFrase:
         """Actualiza referencias de widgets tras un reflow de la frase."""
         self._widgets = list(widgets)
 
-    def _reproducir_indice(self, token: int, *_):
+    def _reproducir_indice(self, token: int):
         if token != self._token or not self._activo:
             return
 
         if self._indice >= len(self._rutas):
-            self._detener_sonido_actual()
             self._limpiar_resaltado()
             self._activo = False
             return
-
-        self._resaltar_indice(self._indice)
 
         png = Path(self._rutas[self._indice])
         categoria = png.parent.name
         stem = png.stem
         mp3 = Path("audio") / categoria / f"{stem}.mp3"
-        self._indice += 1
 
         if not mp3.exists():
-            Clock.schedule_once(lambda *_: self._reproducir_indice(token), 0)
+            self._indice += 1
+            self._reproducir_indice(token)
             return
 
-        # Antes de cargar/reproducir un nuevo audio hacemos unbind+stop del
-        # anterior para impedir audios fantasma o solapados.
-        self._detener_sonido_actual()
-
-        sonido = SoundLoader.load(str(mp3))
-        if not sonido:
-            Clock.schedule_once(lambda *_: self._reproducir_indice(token), 0)
-            return
-
-        self._sonido_actual = sonido
-        self._callback_on_stop_actual = lambda *_: self._on_stop(token)
-        sonido.bind(on_stop=self._callback_on_stop_actual)
-        sonido.play()
-
-    def _on_stop(self, token: int):
-        # Token: si cambió la reproducción activa, ignoramos callbacks viejos.
-        if token != self._token or not self._activo:
-            return
-        Clock.schedule_once(lambda *_: self._reproducir_indice(token), 0)
-
-    def _detener_sonido_actual(self):
         if self._sonido_actual:
-            # Unbind antes de stop para que el on_stop del sonido antiguo no
-            # avance la secuencia actual por error.
-            if self._callback_on_stop_actual is not None:
+            if self._handler_on_stop is not None:
                 try:
-                    self._sonido_actual.unbind(on_stop=self._callback_on_stop_actual)
+                    self._sonido_actual.unbind(on_stop=self._handler_on_stop)
                 except Exception:
                     pass
+            # Esta parada es manual: no debe disparar avance de secuencia.
+            self._parada_manual = True
             try:
                 self._sonido_actual.stop()
             except Exception:
                 pass
-        self._sonido_actual = None
-        self._callback_on_stop_actual = None
+            self._parada_manual = False
+            self._sonido_actual = None
+            self._handler_on_stop = None
+
+        sonido = SoundLoader.load(str(mp3))
+        if not sonido:
+            self._indice += 1
+            self._reproducir_indice(token)
+            return
+
+        self._sonido_actual = sonido
+        self._handler_on_stop = lambda *_: self._al_terminar(token)
+        sonido.bind(on_stop=self._handler_on_stop)
+
+        self._resaltar_indice(self._indice)
+        sonido.play()
+
+    def _al_terminar(self, token: int):
+        if token != self._token or not self._activo:
+            return
+        # Si el stop fue manual (detener/reiniciar/cambio), no avanzamos.
+        if self._parada_manual:
+            return
+        # schedule_once evita reentradas del callback de audio dentro del mismo tick.
+        Clock.schedule_once(lambda _dt: self._avanzar(token), 0)
+
+    def _avanzar(self, token: int):
+        if token != self._token or not self._activo:
+            return
+        self._limpiar_resaltado()
+        self._indice += 1
+        self._reproducir_indice(token)
 
     def _resaltar_indice(self, indice: int):
         self._limpiar_resaltado()
