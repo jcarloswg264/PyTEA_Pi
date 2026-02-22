@@ -79,6 +79,8 @@ class VentanaPrincipal(BoxLayout):
         self.categoria_actual = None
         # Marca temporal para debounce del botón "borrar último".
         self._ultimo_borrado_ts = 0.0
+        # Marca temporal para debounce del botón PLAY.
+        self._ts_ultimo_play = 0.0
 
         # Reproductor modular de audio + resaltado.
         self.reproductor = ReproductorAudioFrase()
@@ -113,7 +115,8 @@ class VentanaPrincipal(BoxLayout):
         barra_inferior.add_widget(self.area_seleccionados)
 
         boton_play = Button(background_normal="assets/play.png", size_hint=(None, None), size=(80, 80))
-        boton_play.bind(on_release=lambda *_: self.on_play())
+        # Usamos on_press para reducir dobles releases en pantallas táctiles.
+        boton_play.bind(on_press=lambda *_: self.on_play_debounced())
         barra_inferior.add_widget(boton_play)
 
         boton_borrar_ultimo = Button(
@@ -138,6 +141,14 @@ class VentanaPrincipal(BoxLayout):
             return
         self._ultimo_borrado_ts = ahora
         self.barra_seleccionados.borrar_ultimo()
+
+    def on_play_debounced(self):
+        """Dispara PLAY con debounce para evitar doble ejecución por input duplicado."""
+        ahora = time.monotonic()
+        if ahora - self._ts_ultimo_play < 0.25:
+            return
+        self._ts_ultimo_play = ahora
+        self.on_play()
 
     def on_play(self):
         """Gestiona botón PLAY según vista actual."""

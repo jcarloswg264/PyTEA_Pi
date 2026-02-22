@@ -21,18 +21,20 @@ class ReproductorAudioFrase:
         self._widgets_actuales = []
         self._indice = 0
         self._sonido_actual = None
+        self._callback_on_stop_actual = None
         self._widget_resaltado = None
         self._token_reproduccion = 0
 
     def reproducir(self, rutas_png: list[str], widgets: list) -> None:
         """Inicia una nueva reproducción desde el principio."""
+        # Cortamos cualquier reproducción previa para garantizar un único sonido activo.
+        self.detener()
         # Tomamos una foto fija (snapshot) de rutas/widgets para evitar
         # desincronización si la UI muta mientras se reproduce audio.
         self._rutas_actuales = list(rutas_png)[:]
         self._widgets_actuales = list(widgets)[:]
         self._indice = 0
         self._token_reproduccion += 1
-        self._detener_sonido_actual()
         self._limpiar_resaltado()
         self._reproducir_siguiente(self._token_reproduccion)
 
@@ -42,7 +44,6 @@ class ReproductorAudioFrase:
             return
         self._indice = 0
         self._token_reproduccion += 1
-        self._detener_sonido_actual()
         self._limpiar_resaltado()
         self._reproducir_siguiente(self._token_reproduccion)
 
@@ -90,21 +91,36 @@ class ReproductorAudioFrase:
             Clock.schedule_once(lambda *_: self._reproducir_siguiente(token), 0)
             return
 
+        # Defensa extra: antes de iniciar un nuevo mp3, detenemos/desvinculamos
+        # cualquier sonido anterior para impedir dos locuciones en paralelo.
+        self._detener_sonido_actual()
         self._sonido_actual = sonido
 
         def _al_terminar(*_):
+            # Token: evita que callbacks antiguos avancen reproducciones nuevas.
+            if token != self._token_reproduccion:
+                return
             Clock.schedule_once(lambda *_: self._reproducir_siguiente(token), 0)
 
+        self._callback_on_stop_actual = _al_terminar
         sonido.bind(on_stop=_al_terminar)
         sonido.play()
 
     def _detener_sonido_actual(self):
         if self._sonido_actual:
+            # Primero desvinculamos callback viejo para que stop() no dispare avances
+            # de cadenas anteriores y no queden reproducciones cruzadas.
+            if self._callback_on_stop_actual is not None:
+                try:
+                    self._sonido_actual.unbind(on_stop=self._callback_on_stop_actual)
+                except Exception:
+                    pass
             try:
                 self._sonido_actual.stop()
             except Exception:
                 pass
         self._sonido_actual = None
+        self._callback_on_stop_actual = None
 
     def _resaltar_indice(self, indice: int):
         self._limpiar_resaltado()

@@ -2,7 +2,7 @@ import sys
 
 from kivy.config import Config
 
-# Evita doble evento touch/mouse en pantallas táctiles (Raspberry Pi).
+# Evita que un toque táctil se duplique como evento de ratón y dispare handlers dos veces.
 Config.set("input", "mouse", "mouse,disable_multitouch")
 
 # Detectamos el modo de ejecución por argumento de línea de comandos.
