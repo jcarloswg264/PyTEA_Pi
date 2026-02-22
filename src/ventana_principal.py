@@ -8,6 +8,7 @@ Arquitectura (modular):
 """
 
 import sys
+import time
 from math import ceil
 from pathlib import Path
 
@@ -76,6 +77,8 @@ class VentanaPrincipal(BoxLayout):
         self.botones_pictos = []
         self._frase_visible = False
         self.categoria_actual = None
+        # Marca temporal para debounce del botón "borrar último".
+        self._ultimo_borrado_ts = 0.0
 
         # Reproductor modular de audio + resaltado.
         self.reproductor = ReproductorAudioFrase()
@@ -116,7 +119,8 @@ class VentanaPrincipal(BoxLayout):
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png", size_hint=(None, None), size=(80, 80)
         )
-        boton_borrar_ultimo.bind(on_release=lambda *_: self.barra_seleccionados.borrar_ultimo())
+        # Usamos on_press para reducir dobles releases en táctil.
+        boton_borrar_ultimo.bind(on_press=lambda *_: self.on_borrar_ultimo())
         barra_inferior.add_widget(boton_borrar_ultimo)
 
         boton_borrar_todo = Button(
@@ -126,6 +130,14 @@ class VentanaPrincipal(BoxLayout):
         barra_inferior.add_widget(boton_borrar_todo)
 
         self.add_widget(barra_inferior)
+
+    def on_borrar_ultimo(self):
+        """Borra un único pictograma por pulsación con debounce temporal."""
+        ahora = time.monotonic()
+        if ahora - self._ultimo_borrado_ts < 0.20:
+            return
+        self._ultimo_borrado_ts = ahora
+        self.barra_seleccionados.borrar_ultimo()
 
     def on_play(self):
         """Gestiona botón PLAY según vista actual."""

@@ -2,6 +2,9 @@ import sys
 
 from kivy.config import Config
 
+# Evita doble evento touch/mouse en pantallas táctiles (Raspberry Pi).
+Config.set("input", "mouse", "mouse,disable_multitouch")
+
 # Detectamos el modo de ejecución por argumento de línea de comandos.
 modo_kiosko = "-k" in sys.argv
 
