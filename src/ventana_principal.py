@@ -13,7 +13,6 @@ from pathlib import Path
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
@@ -28,10 +27,6 @@ from .widgets.boton_imagen import BotonImagen
 from .widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
 
 # Configuración inicial de ventana.
-Config.set("kivy", "exit_on_escape", "0")
-Config.set("graphics", "fullscreen", "auto")
-Config.set("graphics", "borderless", "1")
-Config.set("graphics", "resizable", False)
 Window.clearcolor = (0.96, 0.96, 0.96, 1)
 
 
@@ -40,7 +35,6 @@ class VentanaPrincipal(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
-        Window.show_cursor = False
 
         # Fondo general para cubrir toda la ventana y evitar fondo negro por defecto.
         with self.canvas.before:
