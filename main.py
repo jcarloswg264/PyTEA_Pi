@@ -1,17 +1,18 @@
 import sys
 
 from kivy.config import Config
-from kivy.core.window import Window
 
+# Detectamos el modo de ejecución por argumento de línea de comandos.
 modo_kiosko = "-k" in sys.argv
 
 if modo_kiosko:
+    # Modo kiosko: pantalla completa sin bordes y sin salida con Escape.
     Config.set("kivy", "exit_on_escape", "0")
-    Config.set("graphics", "fullscreen", "auto")
+    Config.set("graphics", "fullscreen", "1")
     Config.set("graphics", "borderless", "1")
     Config.set("graphics", "resizable", False)
-    Window.show_cursor = False
 else:
+    # Modo normal: configuración original de ventana para desarrollo/uso estándar.
     Config.set("graphics", "width", "800")
     Config.set("graphics", "height", "480")
     Config.set("graphics", "resizable", True)

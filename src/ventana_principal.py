@@ -7,6 +7,7 @@ Arquitectura (modular):
 - `VentanaPrincipal`: orquesta layout principal, navegación entre vistas y eventos.
 """
 
+import sys
 from math import ceil
 from pathlib import Path
 
@@ -29,12 +30,22 @@ from .widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_
 # Configuración inicial de ventana.
 Window.clearcolor = (0.96, 0.96, 0.96, 1)
 
+# Detectamos si la app se ejecuta en modo kiosko para ajustar el cursor.
+MODO_KIOSKO = "-k" in sys.argv
+
 
 class VentanaPrincipal(BoxLayout):
     """Contenedor principal y orquestador de vistas/eventos de la app."""
 
     def __init__(self, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
+
+        # En modo kiosko ocultamos el cursor para una interfaz limpia y táctil.
+        if MODO_KIOSKO:
+            Window.show_cursor = False
+        else:
+            # En modo normal mantenemos el cursor visible como en el comportamiento original.
+            Window.show_cursor = True
 
         # Fondo general para cubrir toda la ventana y evitar fondo negro por defecto.
         with self.canvas.before:
