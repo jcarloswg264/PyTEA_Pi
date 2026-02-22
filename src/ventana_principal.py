@@ -28,9 +28,10 @@ from .widgets.boton_imagen import BotonImagen
 from .widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
 
 # Configuración inicial de ventana.
-Config.set("graphics", "width", "800")
-Config.set("graphics", "height", "480")
-Config.set("graphics", "resizable", True)
+Config.set("kivy", "exit_on_escape", "0")
+Config.set("graphics", "fullscreen", "auto")
+Config.set("graphics", "borderless", "1")
+Config.set("graphics", "resizable", False)
 Window.clearcolor = (0.96, 0.96, 0.96, 1)
 
 
@@ -39,6 +40,7 @@ class VentanaPrincipal(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
+        Window.show_cursor = False
 
         # Fondo general para cubrir toda la ventana y evitar fondo negro por defecto.
         with self.canvas.before:
