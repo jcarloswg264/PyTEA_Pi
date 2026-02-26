@@ -7,13 +7,14 @@ Arquitectura (modular):
 - `VentanaPrincipal`: orquesta layout principal, navegación entre vistas y eventos.
 """
 
+import sys
+import time
 from math import ceil
 from pathlib import Path
 
 from kivy.animation import Animation
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
@@ -28,10 +29,10 @@ from .widgets.boton_imagen import BotonImagen
 from .widgets.resaltado_borde import aplicar_resaltado_borde, limpiar_resaltado_borde
 
 # Configuración inicial de ventana.
-Config.set("graphics", "width", "800")
-Config.set("graphics", "height", "480")
-Config.set("graphics", "resizable", True)
 Window.clearcolor = (0.96, 0.96, 0.96, 1)
+
+# Detectamos si la app se ejecuta en modo kiosko para ajustar el cursor.
+MODO_KIOSKO = "-k" in sys.argv
 
 
 class VentanaPrincipal(BoxLayout):
@@ -39,6 +40,13 @@ class VentanaPrincipal(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(orientation="vertical", **kwargs)
+
+        # En modo kiosko ocultamos el cursor para una interfaz limpia y táctil.
+        if MODO_KIOSKO:
+            Window.show_cursor = False
+        else:
+            # En modo normal mantenemos el cursor visible como en el comportamiento original.
+            Window.show_cursor = True
 
         # Fondo general para cubrir toda la ventana y evitar fondo negro por defecto.
         with self.canvas.before:
@@ -69,6 +77,10 @@ class VentanaPrincipal(BoxLayout):
         self.botones_pictos = []
         self._frase_visible = False
         self.categoria_actual = None
+        # Marca temporal para debounce del botón "borrar último".
+        self._ultimo_borrado_ts = 0.0
+        # Marca temporal para debounce del botón PLAY.
+        self._ts_ultimo_play = 0.0
 
         # Reproductor modular de audio + resaltado.
         self.reproductor = ReproductorAudioFrase()
@@ -81,6 +93,7 @@ class VentanaPrincipal(BoxLayout):
 
     def _crear_barra_inferior(self):
         """Construye barra inferior (inicio, seleccionados, play y borrado)."""
+        # Esta barra se crea una sola vez en __init__; no se recrea ni re-bindea.
         barra_inferior = BoxLayout(size_hint=(1, 0.2), padding=10, spacing=10)
         with barra_inferior.canvas.before:
             Color(1, 1, 1, 1)
@@ -102,13 +115,15 @@ class VentanaPrincipal(BoxLayout):
         barra_inferior.add_widget(self.area_seleccionados)
 
         boton_play = Button(background_normal="assets/play.png", size_hint=(None, None), size=(80, 80))
-        boton_play.bind(on_release=lambda *_: self.on_play())
+        # Usamos on_press para reducir dobles releases en pantallas táctiles.
+        boton_play.bind(on_press=lambda *_: self.on_play_debounced())
         barra_inferior.add_widget(boton_play)
 
         boton_borrar_ultimo = Button(
             background_normal="assets/borrar_ultimo.png", size_hint=(None, None), size=(80, 80)
         )
-        boton_borrar_ultimo.bind(on_release=lambda *_: self.barra_seleccionados.borrar_ultimo())
+        # Usamos on_press para reducir dobles releases en táctil.
+        boton_borrar_ultimo.bind(on_press=lambda *_: self.on_borrar_ultimo())
         barra_inferior.add_widget(boton_borrar_ultimo)
 
         boton_borrar_todo = Button(
@@ -118,6 +133,22 @@ class VentanaPrincipal(BoxLayout):
         barra_inferior.add_widget(boton_borrar_todo)
 
         self.add_widget(barra_inferior)
+
+    def on_borrar_ultimo(self):
+        """Borra un único pictograma por pulsación con debounce temporal."""
+        ahora = time.monotonic()
+        if ahora - self._ultimo_borrado_ts < 0.20:
+            return
+        self._ultimo_borrado_ts = ahora
+        self.barra_seleccionados.borrar_ultimo()
+
+    def on_play_debounced(self):
+        """Dispara PLAY con debounce para evitar doble ejecución por input duplicado."""
+        ahora = time.monotonic()
+        if ahora - self._ts_ultimo_play < 0.25:
+            return
+        self._ts_ultimo_play = ahora
+        self.on_play()
 
     def on_play(self):
         """Gestiona botón PLAY según vista actual."""

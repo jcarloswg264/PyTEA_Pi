@@ -17,6 +17,7 @@ class BarraSeleccionados(BoxLayout):
         super().__init__(orientation="horizontal", **kwargs)
         self.rutas = []
         self.widgets = []
+        self._bloqueo_borrado = False
 
         self.scroll = ScrollView(do_scroll_x=True, do_scroll_y=False, bar_width=6)
         self.contenido = BoxLayout(
@@ -49,13 +50,22 @@ class BarraSeleccionados(BoxLayout):
 
     def borrar_ultimo(self) -> None:
         """Elimina el último pictograma seleccionado si existe."""
+        # Debounce: algunos paneles táctiles/eventos pueden disparar doble toque.
+        if self._bloqueo_borrado:
+            return
         if not self.rutas:
             return
 
+        self._bloqueo_borrado = True
+
+        # Borrado atómico: exactamente un pop de rutas y un widget asociado.
         self.rutas.pop()
-        widget = self.widgets.pop()
-        self.contenido.remove_widget(widget)
+        if self.widgets:
+            widget = self.widgets.pop()
+            self.contenido.remove_widget(widget)
+
         Clock.schedule_once(self._auto_scroll, 0)
+        Clock.schedule_once(lambda dt: setattr(self, "_bloqueo_borrado", False), 0.12)
 
     def borrar_todo(self) -> None:
         """Vacía por completo el buffer y las miniaturas."""
